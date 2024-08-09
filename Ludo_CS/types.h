@@ -21,10 +21,10 @@ typedef enum
 
 typedef struct
 {
-	unsigned char id;
-	unsigned char location;
-	unsigned char direction;
-	unsigned char capture_count;
+	short id;
+	short location;
+	short direction;
+	short capture_count;
 	float move;
 
 } Piece;
@@ -33,9 +33,9 @@ typedef struct
 {
 	Color color;
 	Piece p[4];
-	unsigned char current_roll;
+	short current_roll;
 	char* name;
-	unsigned char count;
+	short count;
 } Player;
 
 
@@ -44,6 +44,6 @@ typedef struct
 typedef struct
 {
 	Piece* pieces[4];
-	unsigned char direction;
+	short direction;
 } Block;
 

@@ -30,7 +30,7 @@ Player initPlayer(Color color)
 		case BLUE: player.name = "blue";
 	}
 
-	for (unsigned char i = 0; i < 4; i++)
+	for (short i = 0; i < 4; i++)
 	{
 		player.p[i].id = i + 1;
 		player.p[i].location = BASE;
@@ -47,19 +47,19 @@ Player initPlayer(Color color)
 
 
 // rolls the die
-unsigned char rollDice()
+short rollDice()
 {	
-	return (unsigned char)rand() % 6 + 1;
+	return (short)rand() % 6 + 1;
 }
 
 
 // get the maximum roll number from players
-unsigned char getMax(Player* p1, Player* p2, Player* p3, Player* p4)
+short getMax(Player* p1, Player* p2, Player* p3, Player* p4)
 {
-	unsigned char a = p1->current_roll;
-	unsigned char b = p2->current_roll;
-	unsigned char c = p3->current_roll;
-	unsigned char d = p4->current_roll;
+	short a = p1->current_roll;
+	short b = p2->current_roll;
+	short c = p3->current_roll;
+	short d = p4->current_roll;
 
 	if (a > b && a > c && a > d)
 		return p1->color;
@@ -75,7 +75,7 @@ unsigned char getMax(Player* p1, Player* p2, Player* p3, Player* p4)
 
 
 // rolls the dice for players
-unsigned char rolls(Player* player)
+short rolls(Player* player)
 {
 	player->current_roll = rollDice();
 
@@ -117,10 +117,10 @@ void setOrder(Player* p1,Player* p2,Player* p3,Player* p4, Color max_player)
 
 
 // get the number of pieces in the board
-unsigned char getPieceCount(Player* player)
+short getBoardPieceCount(Player* player)
 {
-	unsigned char count = 0;
-	for (unsigned char i = 0; i < 4; i++)
+	short count = 0;
+	for (short i = 0; i < 4; i++)
 	{
 		if (player->p[i].location != BASE)
 			count++;
@@ -132,7 +132,7 @@ unsigned char getPieceCount(Player* player)
 // choose and return one piece form the pieces in the base
 Piece* getBasePiece(Player* player)
 {
-	for (unsigned char i = 0; i < 4; i++)
+	for (short i = 0; i < 4; i++)
 	{
 		if (player->p[i].location = BASE)
 			return &(player->p[i]);
@@ -144,7 +144,7 @@ Piece* getBasePiece(Player* player)
 // moves a piece of a player
 bool move(Player* player)
 {
-	unsigned char base_pieces = getPieceCount(player);
+	short base_pieces = getBoardPieceCount(player);
 
 	if (!base_pieces)
 	{
@@ -170,7 +170,7 @@ bool move(Player* player)
 void start(Player* player1, Player* player2, Player* player3, Player* player4)
 {
 	srand(time(NULL));
-	unsigned char max_player;
+	short max_player;
 
 	do
 	{

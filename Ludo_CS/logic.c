@@ -141,29 +141,7 @@ Piece* getBasePiece(Player* player)
 }
 
 
-// moves a piece of a player
-bool move(Player* player)
-{
-	short base_pieces = getBoardPieceCount(player);
-
-	if (!base_pieces)
-	{
-		if (rolls(player) == 6)
-		{
-			Piece* piece = getBasePiece(player);
-			piece->location = player->color;
-
-
-		}
-	}
-
-
-
-
-
-
-	return false;
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 // Start the game
@@ -174,14 +152,10 @@ void start(Player* player1, Player* player2, Player* player3, Player* player4)
 
 	do
 	{
-		rolls(player1);
-		printf("Yellow rolls %d\n", player1->current_roll);
-		rolls(player2);
-		printf("Blue rolls %d\n", player2->current_roll);
-		rolls(player3);
-		printf("Red rolls %d\n", player3->current_roll);
-		rolls(player4);
-		printf("Green rolls %d\n", player4->current_roll);
+		printf("Yellow rolls %d\n", rolls(player1));
+		printf("Blue rolls %d\n", rolls(player2));
+		printf("Red rolls %d\n", rolls(player3));
+		printf("Green rolls %d\n", rolls(player4));
 
 		NEWLINE;
 
@@ -197,6 +171,52 @@ void start(Player* player1, Player* player2, Player* player3, Player* player4)
 	printf("%s player has the highest roll and will begin the game.\n", player1->name);
 	printf("The order of a single round is %s, %s, %s, and %s.\n", player1->name, player2->name, player3->name, player4->name);
 
+
+	// maping the virtual map
+
+	v_map[0][0] = &(player1->p[0]);
+	v_map[0][1] = &(player1->p[1]);
+	v_map[0][2] = &(player1->p[2]);
+	v_map[0][3] = &(player1->p[3]);
+
+	v_map[1][0] = &(player2->p[0]);
+	v_map[1][1] = &(player2->p[1]);
+	v_map[1][2] = &(player2->p[2]);
+	v_map[1][3] = &(player3->p[3]);
+
+	v_map[2][0] = &(player3->p[0]);
+	v_map[2][1] = &(player3->p[1]);
+	v_map[2][2] = &(player3->p[2]);
+	v_map[2][3] = &(player3->p[3]);
+
+	v_map[3][0] = &(player4->p[0]);
+	v_map[3][1] = &(player4->p[1]);
+	v_map[3][2] = &(player4->p[2]);
+	v_map[3][3] = &(player4->p[3]);
+
+}
+
+
+// moves a piece of a player
+bool move(Player* player)
+{
+	short base_pieces = getBoardPieceCount(player);
+
+	// The first case
+	if (!base_pieces)
+	{
+		if (rolls(player) == 6)
+		{
+			Piece* piece = getBasePiece(player);
+			piece->location = player->color;
+			player->count++;
+
+			return true;
+		}
+	}
+
+
+	return false;
 }
 
 

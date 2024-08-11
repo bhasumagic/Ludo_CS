@@ -10,35 +10,35 @@
 #define ANTICLOCKWISE -1
 
 
+extern Piece* v_map[4][4];
+
 typedef enum
 {
-	YELLOW =0,
-	BLUE = 13,
-	RED = 26,
-	GREEN = 39
+	YELLOW =2,
+	BLUE = 15,
+	RED = 28,
+	GREEN = 41
 } Color;
 
 
 typedef struct
 {
+	float move;
 	short id;
 	short location;
 	short direction;
 	short capture_count;
-	float move;
-
 } Piece;
+
 
 typedef struct
 {
-	Color color;
 	Piece p[4];
-	short current_roll;
 	char* name;
+	Color color;
+	short current_roll;
 	short count;
 } Player;
-
-
 
 
 typedef struct

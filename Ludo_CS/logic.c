@@ -6,6 +6,8 @@
 
 
 int game_round = 0;
+void go(Player* player);
+Piece* v_map[4][4] = { 0 };
 
 
 // initialize players
@@ -13,8 +15,8 @@ Player initPlayer(Color color)
 {
 	Player player;
 	player.color = color;
-	player.current_roll = 0;
-	player.count = 0;
+	player.current_roll = NONE;
+	player.count = NONE;
 
 	switch (color)
 	{
@@ -32,11 +34,13 @@ Player initPlayer(Color color)
 
 	for (short i = 0; i < 4; i++)
 	{
+		player.p[i].move = 1.0f;
+		player.p[i].color = color;
+		player.p[i].block = false;
 		player.p[i].id = i + 1;
 		player.p[i].location = BASE;
 		player.p[i].direction = CLOCKWISE;
 		player.p[i].capture_count = 0;
-		player.p[i].move = 1.0f;
 	}
 
 	return player;
@@ -116,7 +120,7 @@ void setOrder(Player* p1,Player* p2,Player* p3,Player* p4, Color max_player)
 }
 
 
-// get the number of pieces in the board
+// get the number of pieces in the board of a given player
 short getBoardPieceCount(Player* player)
 {
 	short count = 0;
@@ -141,13 +145,73 @@ Piece* getBasePiece(Player* player)
 }
 
 
+// checking whether the cell is available for a piece of a specific player
+bool isCellClear(Player* player, short location)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		for (short j = 0; j < 4; j++)
+		{
+			if (location == (v_map[i][j])->location && player->color != (v_map[i][j])->color)
+				return false;
+		}
+	}
+	return true;
+}
+
+
+// get the color of a player from a location
+Color getColor(short location)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		for (short j = 0; j < 4; j++)
+		{
+			if (location == (v_map[i][j])->location)
+				return (v_map[i][j])->color;
+		}
+	}
+	return NONE;
+}
+
+
+// get the piece id of a specific location
+short getID(short location)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		for (short j = 0; j < 4; j++)
+		{
+			if (location == (v_map[i][j])->location)
+				return (v_map[i][j])->id;
+		}
+	}
+	return NONE;
+}
+
+
+// get the name of a player from color
+const char* getName(Color color)
+{
+	switch (color)
+	{
+		case YELLOW: return "yellow";
+		case BLUE: return "blue";
+		case RED: return "red";
+		case GREEN: return "green";
+
+	}
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 // Start the game
 void start(Player* player1, Player* player2, Player* player3, Player* player4)
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	short max_player;
 
 	do
@@ -200,23 +264,51 @@ void start(Player* player1, Player* player2, Player* player3, Player* player4)
 // moves a piece of a player
 bool move(Player* player)
 {
-	short base_pieces = getBoardPieceCount(player);
+	short board_pieces = getBoardPieceCount(player);
 
-	// The first case
-	if (!base_pieces)
+	// The first case, where there is no piece on the board
+	if (!board_pieces)
 	{
 		if (rolls(player) == 6)
 		{
+			printf("\n%s player rolled %hd.\n", player->name, player->current_roll);
 			Piece* piece = getBasePiece(player);
-			piece->location = player->color;
-			player->count++;
+			short x_location = (short)player->color;
 
-			return true;
+			if (isCellClear(player, x_location))
+			{
+				piece->location = x_location;
+				player->count++;
+
+				printf("%s player moves piece %d to the starting point.\n", player->name, piece->id);
+				printf("%s player now has %hd/4 on pieces on the board and %hd/4 pieces on the base.\n\n", player->name, 1, 3);
+
+				return true;
+			}
+			else
+			{
+				printf("%s piece %hd is blocked from moving from BASE to X by %s piece %hd.\n\n", player->name, piece->id, getName(getColor(x_location)), getID(x_location));
+				return false;
+			}
+		}
+		else
+		{
+			printf("\n%s player rolled %hd. passing to the next player.\n", player->name, player->current_roll);
+			return false;
 		}
 	}
 
+	// second case
+	// when there is at least one piece in the board
+	if (player->count < 3)
+	{
+		printf("\n%s player rolled %hd.\n", player->name, rolls(player));
+		if (player->current_roll == 6) player->count++;
 
-	return false;
+
+
+	}
+
 }
 
 

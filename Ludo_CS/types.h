@@ -8,9 +8,9 @@
 #define HOME -3
 #define CLOCKWISE 1
 #define ANTICLOCKWISE -1
+#define NONE 0
 
 
-extern Piece* v_map[4][4];
 
 typedef enum
 {
@@ -24,6 +24,8 @@ typedef enum
 typedef struct
 {
 	float move;
+	Color color;
+	bool block;
 	short id;
 	short location;
 	short direction;
@@ -47,3 +49,5 @@ typedef struct
 	short direction;
 } Block;
 
+
+extern Piece* v_map[4][4];

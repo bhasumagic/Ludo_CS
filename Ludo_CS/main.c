@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "types.h"
 #include "logic.h"
 
@@ -6,6 +7,16 @@
 
 int main()
 {
+	//FILE* fp;
+
+	//freopen_s(&fp, "output.txt", "w", stdout);
+
+
+	printf("\t\t\t\t\t___ LUDO CS ___ \n\t\t\t\t      by Bhasura Jayaweera\n\n");
+	for (short i = 0; i < 100; i++) printf("_");
+	NEWLINE;
+	for (short i = 0; i < 100; i++) printf("#");
+	NEWLINE; NEWLINE;
 
 	Player player1 = initPlayer(YELLOW);
 	Player player2 = initPlayer(BLUE);

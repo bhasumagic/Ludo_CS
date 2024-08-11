@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gameAI.c" />
     <ClCompile Include="logic.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>

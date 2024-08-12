@@ -6,7 +6,7 @@ void goYellow(Player* player)
 
 }
 
-void go(Player* player, short roll)
+void go(Player* player)
 {
 	switch (player->color)
 	{

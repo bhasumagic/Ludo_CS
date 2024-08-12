@@ -10,6 +10,10 @@
 #define ANTICLOCKWISE -1
 #define NONE 0
 
+#define LINE for (short i = 0; i < 100; i++) printf("_")
+#define HASHLINE for (short i = 0; i < 100; i++) printf("#")
+
+
 
 
 typedef enum
@@ -27,6 +31,7 @@ typedef struct
 	Color color;
 	bool block;
 	short id;
+	short block_id;
 	short location;
 	short direction;
 	short capture_count;
@@ -38,6 +43,7 @@ typedef struct
 	Piece p[4];
 	char* name;
 	Color color;
+	short order;
 	short current_roll;
 	short count;
 } Player;

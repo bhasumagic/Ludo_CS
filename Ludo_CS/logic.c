@@ -15,6 +15,7 @@ Player initPlayer(Color color)
 {
 	Player player;
 	player.color = color;
+	player.order = NONE;
 	player.current_roll = NONE;
 	player.count = NONE;
 
@@ -38,6 +39,7 @@ Player initPlayer(Color color)
 		player.p[i].color = color;
 		player.p[i].block = false;
 		player.p[i].id = i + 1;
+		player.p[i].block_id = NONE;
 		player.p[i].location = BASE;
 		player.p[i].direction = CLOCKWISE;
 		player.p[i].capture_count = 0;
@@ -117,6 +119,11 @@ void setOrder(Player* p1,Player* p2,Player* p3,Player* p4, Color max_player)
 			*p4 = temp3;
 	}
 
+	p1->order = 1;
+	p2->order = 2;
+	p3->order = 3;
+	p4->order = 4;
+
 }
 
 
@@ -152,7 +159,7 @@ bool isCellClear(Player* player, short location)
 	{
 		for (short j = 0; j < 4; j++)
 		{
-			if (location == (v_map[i][j])->location && player->color != (v_map[i][j])->color)
+			if (location == (v_map[i][j])->location && player->color != (v_map[i][j])->color && (v_map[i][j])->block )
 				return false;
 		}
 	}
@@ -176,7 +183,7 @@ Color getColor(short location)
 
 
 // get the piece id of a specific location
-short getID(short location)
+short getPieceID(short location)
 {
 	for (short i = 0; i < 4; i++)
 	{
@@ -184,6 +191,21 @@ short getID(short location)
 		{
 			if (location == (v_map[i][j])->location)
 				return (v_map[i][j])->id;
+		}
+	}
+	return NONE;
+}
+
+
+// get the block id of a specific location
+short getBlockID(short location)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		for (short j = 0; j < 4; j++)
+		{
+			if (location == (v_map[i][j])->location)
+				return (v_map[i][j])->block_id;
 		}
 	}
 	return NONE;
@@ -199,10 +221,29 @@ const char* getName(Color color)
 		case BLUE: return "blue";
 		case RED: return "red";
 		case GREEN: return "green";
-
 	}
 }
 
+
+// check if there are blocks for a player and get one of them
+Piece** getBlocks(Player* player)
+{
+	static Piece* array[4] = {NULL , NULL , NULL , NULL};
+	short temp;
+	short count = 0;
+
+	for (short j = 0; j < 4; j++)
+	{
+		if (v_map[player->order][j]->block)
+			temp = v_map[player->order][j];
+	}
+
+	for (short j = 0; j < 4; j++)
+	{
+		if (v_map[player->order][j]->block_id == temp)
+			array[count++] = &(v_map[player->order][j]);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +287,7 @@ void start(Player* player1, Player* player2, Player* player3, Player* player4)
 	v_map[1][0] = &(player2->p[0]);
 	v_map[1][1] = &(player2->p[1]);
 	v_map[1][2] = &(player2->p[2]);
-	v_map[1][3] = &(player3->p[3]);
+	v_map[1][3] = &(player2->p[3]);
 
 	v_map[2][0] = &(player3->p[0]);
 	v_map[2][1] = &(player3->p[1]);
@@ -280,14 +321,29 @@ bool move(Player* player)
 				piece->location = x_location;
 				player->count++;
 
-				printf("%s player moves piece %d to the starting point.\n", player->name, piece->id);
-				printf("%s player now has %hd/4 on pieces on the board and %hd/4 pieces on the base.\n\n", player->name, 1, 3);
+				printf("%s player moves piece %d to the starting point(%hd).\n", player->name, piece->id, x_location);
+				printf("%s player now has %hd/4 on pieces on the board and %hd/4 pieces on the base.\n", player->name, 1, 3);
 
+				char* dir;
+
+				if (rollDice() % 2)
+				{
+					piece->direction = CLOCKWISE;
+					dir = "clockwise";
+				}
+				else
+				{
+					piece->direction = ANTICLOCKWISE;
+					dir = "counterclockwise";
+				}
+
+
+				printf("%s moves piece %hd will move in %s direction.\n", player->name, piece->id, dir);
 				return true;
 			}
 			else
 			{
-				printf("%s piece %hd is blocked from moving from BASE to X by %s piece %hd.\n\n", player->name, piece->id, getName(getColor(x_location)), getID(x_location));
+				printf("%s piece %hd is blocked from moving from BASE to X by %s block %hd.\n", player->name, piece->id, getName(getColor(x_location)), getBlockID(x_location));
 				return false;
 			}
 		}
@@ -298,6 +354,8 @@ bool move(Player* player)
 		}
 	}
 
+
+
 	// second case
 	// when there is at least one piece in the board
 	if (player->count < 3)
@@ -305,17 +363,28 @@ bool move(Player* player)
 		printf("\n%s player rolled %hd.\n", player->name, rolls(player));
 		if (player->current_roll == 6) player->count++;
 
+		go(player);
+
 
 
 	}
+	else
+	{
+		player->count = 0;
+
+	}
+	return false;
 
 }
 
 
 // one game round of a game
-bool round(Player* player)
+bool round(Player* p1, Player* p2, Player* p3, Player* p4)
 {
-
+	while (move(p1));
+	while (move(p2));
+	while (move(p3));
+	while (move(p4));
 
 }
 

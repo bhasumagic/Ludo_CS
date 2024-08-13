@@ -14,7 +14,7 @@ int main()
 
 	printf("\t\t\t\t\t___ LUDO CS ___ \n\t\t\t\t      by Bhasura Jayaweera\n\n");
 	
-	NEWLINE;	LINE;	NEWLINE;	HASHLINE;	NEWLINE;	LINE;	NEWLINE;	NEWLINE;
+	NEWLINE;	LINE;	NEWLINE;	HASHLINE;	NEWLINE;	NEWLINE;
 
 	Player player1 = initPlayer(YELLOW);
 	Player player2 = initPlayer(BLUE);
@@ -35,7 +35,7 @@ int main()
 	while (1)
 	{
 		NEWLINE;
-		round(&player1, &player2, &player3, &player4);
+		game_round(&player1, &player2, &player3, &player4);
 		LINE;
 	}
 

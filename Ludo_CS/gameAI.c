@@ -1,10 +1,29 @@
 #include <stdio.h>
 #include "types.h"
+#include "functions.h"
 
+
+
+
+// game behaviour for the yellow player
 void goYellow(Player* player)
 {
 
 }
+
+
+// game behaviour for the green player
+void goGreen(Player* player)
+{
+
+
+
+
+}
+
+
+
+
 
 void go(Player* player)
 {

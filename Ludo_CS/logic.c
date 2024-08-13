@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "types.h"
 #include "logic.h"
+#include "types.h"
+#include "functions.h"
 
 
-int game_round = 0;
-void go(Player* player);
+void go(Player* player);	// the prototype of the "go()" function in the "gameAI.c"
+
+int game_round_count = 0;
 Piece* v_map[4][4] = { 0 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// special functions
 
 // initialize players
 Player initPlayer(Color color)
 {
 	Player player;
+	player.blocks = NULL;
 	player.color = color;
 	player.order = NONE;
 	player.current_roll = NONE;
@@ -43,211 +48,40 @@ Player initPlayer(Color color)
 		player.p[i].location = BASE;
 		player.p[i].direction = CLOCKWISE;
 		player.p[i].capture_count = 0;
+		player.p[i].mystery_count = 0;
+
 	}
 
 	return player;
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// rolls the die
-short rollDice()
-{	
-	return (short)rand() % 6 + 1;
-}
-
-
-// get the maximum roll number from players
-short getMax(Player* p1, Player* p2, Player* p3, Player* p4)
+// create a block
+Block* initBlock(Color color, Piece* p1, Piece* p2)
 {
-	short a = p1->current_roll;
-	short b = p2->current_roll;
-	short c = p3->current_roll;
-	short d = p4->current_roll;
+	Block* block = (Block*)malloc(sizeof(Block));
+	block->color = color;
+	block->move = 0.5;	// the move is set to 1/2 or 0.5 beacuse when creating a block the moving multiple drops by 1/2
 
-	if (a > b && a > c && a > d)
-		return p1->color;
-	else if (b > a && b > c && b > d)
-		return p2->color;
-	else if (c > a && c > b && c > d)
-		return p3->color;
-	else if (d > a && d > b && d > c)
-		return p4->color;
-	else
-		return -1;
+	// to do:-> when the location mechanism is done
+
+	return block;
 }
 
 
-// rolls the dice for players
-short rolls(Player* player)
+// adding another piece to the block
+Block* addToBlock(Block* existing_block)
 {
-	player->current_roll = rollDice();
-
-	return player->current_roll;
-}
+	free(existing_block);
 
 
-// swap the order of players
-void setOrder(Player* p1,Player* p2,Player* p3,Player* p4, Color max_player)
-{
-	Player temp1 = *p1;
-	Player temp2 = *p2;
-	Player temp3 = *p3;
-
-	switch (max_player)
-	{
-		case BLUE: 
-			*p1 = *p2;
-			*p2 = *p3;
-			*p3 = *p4;
-			*p4 = temp1;
-			break;
-
-		case RED: 
-			*p1 = *p3;
-			*p2 = *p4;
-			*p3 = temp1;
-			*p4 = temp2;
-			break;
-
-		case GREEN: 
-			*p1 = *p4;
-			*p2 = temp1;
-			*p3 = temp2;
-			*p4 = temp3;
-	}
-
-	p1->order = 1;
-	p2->order = 2;
-	p3->order = 3;
-	p4->order = 4;
 
 }
 
-
-// get the number of pieces in the board of a given player
-short getBoardPieceCount(Player* player)
-{
-	short count = 0;
-	for (short i = 0; i < 4; i++)
-	{
-		if (player->p[i].location != BASE)
-			count++;
-	}
-	return count;
-}
-
-
-// choose and return one piece form the pieces in the base
-Piece* getBasePiece(Player* player)
-{
-	for (short i = 0; i < 4; i++)
-	{
-		if (player->p[i].location = BASE)
-			return &(player->p[i]);
-	}
-	return NULL;
-}
-
-
-// checking whether the cell is available for a piece of a specific player
-bool isCellClear(Player* player, short location)
-{
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == (v_map[i][j])->location && player->color != (v_map[i][j])->color && (v_map[i][j])->block )
-				return false;
-		}
-	}
-	return true;
-}
-
-
-// get the color of a player from a location
-Color getColor(short location)
-{
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == (v_map[i][j])->location)
-				return (v_map[i][j])->color;
-		}
-	}
-	return NONE;
-}
-
-
-// get the piece id of a specific location
-short getPieceID(short location)
-{
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == (v_map[i][j])->location)
-				return (v_map[i][j])->id;
-		}
-	}
-	return NONE;
-}
-
-
-// get the block id of a specific location
-short getBlockID(short location)
-{
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == (v_map[i][j])->location)
-				return (v_map[i][j])->block_id;
-		}
-	}
-	return NONE;
-}
-
-
-// get the name of a player from color
-const char* getName(Color color)
-{
-	switch (color)
-	{
-		case YELLOW: return "yellow";
-		case BLUE: return "blue";
-		case RED: return "red";
-		case GREEN: return "green";
-	}
-}
-
-
-// check if there are blocks for a player and get one of them
-Piece** getBlocks(Player* player)
-{
-	static Piece* array[4] = {NULL , NULL , NULL , NULL};
-	short temp;
-	short count = 0;
-
-	for (short j = 0; j < 4; j++)
-	{
-		if (v_map[player->order][j]->block)
-			temp = v_map[player->order][j];
-	}
-
-	for (short j = 0; j < 4; j++)
-	{
-		if (v_map[player->order][j]->block_id == temp)
-			array[count++] = &(v_map[player->order][j]);
-	}
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// main functions
 
 // Start the game
 void start(Player* player1, Player* player2, Player* player3, Player* player4)
@@ -343,7 +177,7 @@ bool move(Player* player)
 			}
 			else
 			{
-				printf("%s piece %hd is blocked from moving from BASE to X by %s block %hd.\n", player->name, piece->id, getName(getColor(x_location)), getBlockID(x_location));
+				printf("%s piece %hd is blocked from moving from BASE to X by %s block %hd.\n", player->name, piece->id, getName(getColor(x_location)), getPieceID(x_location));
 				return false;
 			}
 		}
@@ -362,16 +196,13 @@ bool move(Player* player)
 	{
 		printf("\n%s player rolled %hd.\n", player->name, rolls(player));
 		if (player->current_roll == 6) player->count++;
+		else player->count = 0;
 
 		go(player);
-
-
-
 	}
 	else
 	{
 		player->count = 0;
-
 	}
 	return false;
 
@@ -379,13 +210,16 @@ bool move(Player* player)
 
 
 // one game round of a game
-bool round(Player* p1, Player* p2, Player* p3, Player* p4)
+bool game_round(Player* p1, Player* p2, Player* p3, Player* p4)
 {
+	game_round_count++;
+	printf(">>> Game round - %d\n", game_round_count);
+
+
 	while (move(p1));
 	while (move(p2));
 	while (move(p3));
 	while (move(p4));
-
 }
 
 

@@ -52,7 +52,7 @@ typedef struct
 typedef struct
 {
 	Piece p[4];
-	Block* blocks;
+	Block* b[2];
 	char* name;
 	Color color;
 	short order;

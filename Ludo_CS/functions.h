@@ -23,4 +23,6 @@ short getPieceID(short location);
 
 const char* getName(Color color);
 
-short isRangeClear(Player* player);
+short getHomeDistance(Piece* piece);
+
+short isRangeClear(Player* player, Piece* piece);

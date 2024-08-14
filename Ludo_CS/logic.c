@@ -18,25 +18,13 @@ Piece* v_map[4][4] = { 0 };
 Player initPlayer(Color color)
 {
 	Player player;
-	player.blocks = NULL;
+	player.b[0] = NULL;
+	player.b[1] = NULL;
 	player.color = color;
 	player.order = NONE;
 	player.current_roll = NONE;
 	player.count = NONE;
-
-	switch (color)
-	{
-		case YELLOW: player.name = "yellow";
-			break;
-		
-		case GREEN: player.name = "green";
-			break;
-		
-		case RED: player.name = "red";
-			break;
-		
-		case BLUE: player.name = "blue";
-	}
+	player.name = getName(color);
 
 	for (short i = 0; i < 4; i++)
 	{
@@ -48,7 +36,6 @@ Player initPlayer(Color color)
 		player.p[i].direction = CLOCKWISE;
 		player.p[i].capture_count = 0;
 		player.p[i].mystery_count = 0;
-
 	}
 
 	return player;
@@ -56,13 +43,26 @@ Player initPlayer(Color color)
 
 
 // create a block
-Block* initBlock(Color color, Piece* p1, Piece* p2)
+Block* initBlock(Player* player, Piece* p1, Piece* p2)
 {
 	Block* block = (Block*)malloc(sizeof(Block));
-	block->color = color;
+
+	block->color = player->color;
+
+	if (p1->direction != p2->direction)
+		block->direction = (getHomeDistance(p1) > getHomeDistance(p2)) ? p1->direction : p2->direction;
+	else
+		block->direction = p1->direction;
+
 	block->move = 0.5;	// the move is set to 1/2 or 0.5 beacuse when creating a block the moving multiple drops by 1/2
 
-	// to do:-> when the location mechanism is done
+	if (player->b[0] != NULL)
+		player->b[0] = block;
+	else
+		player->b[1] = block;
+
+	p1->block = true;
+	p2->block = true;
 
 	return block;
 }

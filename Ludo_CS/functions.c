@@ -175,11 +175,21 @@ const char* getName(Color color)
 {
 	switch (color)
 	{
-	case YELLOW: return "yellow";
-	case BLUE: return "blue";
-	case RED: return "red";
-	case GREEN: return "green";
+	case YELLOW: return "Yellow";
+	case BLUE: return "Blue";
+	case RED: return "Red";
+	case GREEN: return "Green";
 	}
+}
+
+
+// return the diatance to the home of a piece
+short getHomeDistance(Piece* piece)
+{
+	if (piece->direction == CLOCKWISE)
+		return (short)(56 - piece->location + (short)piece->color);	// simplified 52 - (location) + (approach_cell) + 6
+	else
+		return (short)(piece->location - (short)piece->color + 8);	// simplified (location) - (approach_cell) + 6
 }
 
 
@@ -197,9 +207,7 @@ short isRangeClear(Player* player, Piece* piece)
 			{
 				for (short j = 0; j < 4; j++)
 				{
-					if ((v_map[i][j])->color == piece->color)
-						return CANBLOCK;
-					else if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
+					if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
 						return (v_map[i][j])->location - 1;
 				}
 			}
@@ -208,19 +216,19 @@ short isRangeClear(Player* player, Piece* piece)
 	}
 	else    // if the direction is counterclockwise
 	{
-		//for (short i = piece->location; i < (piece->location + player->current_roll); i++)
-		//{
-		//	for (short i = 0; i < 4; i++)
-		//	{
-		//		for (short j = 0; j < 4; j++)
-		//		{
-		//			if ((v_map[i][j])->color == piece->color)
-		//				return CANBLOCK;
-		//			else if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
-		//				return (v_map[i][j])->location - 1;
-		//		}
-		//	}
-		//}
+		for (short i = piece->location; i < (piece->location - player->current_roll); i--)
+		{
+			for (short i = 0; i < 4; i++)
+			{
+				for (short j = 0; j < 4; j++)
+				{
+					if ((v_map[i][j])->color == piece->color)
+						return CANBLOCK;
+					else if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
+						return (v_map[i][j])->location - 1;
+				}
+			}
+		}
 	}
 	{
 

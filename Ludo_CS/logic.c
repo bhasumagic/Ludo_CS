@@ -24,7 +24,7 @@ Player initPlayer(Color color)
 	player.order = NONE;
 	player.current_roll = NONE;
 	player.count = NONE;
-	player.name = getName(color);
+	player.name = (char*)getName(color);
 
 	for (short i = 0; i < 4; i++)
 	{

@@ -11,7 +11,7 @@
 // rolls the die
 short rollDice()
 {
-	return (short)rand() % 6 + 1;
+	return (short)(rand() % 6 + 1);
 }
 
 

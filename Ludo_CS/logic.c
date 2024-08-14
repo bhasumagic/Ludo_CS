@@ -44,7 +44,6 @@ Player initPlayer(Color color)
 		player.p[i].color = color;
 		player.p[i].block = false;
 		player.p[i].id = i + 1;
-		player.p[i].block_id = NONE;
 		player.p[i].location = BASE;
 		player.p[i].direction = CLOCKWISE;
 		player.p[i].capture_count = 0;
@@ -158,22 +157,19 @@ bool move(Player* player)
 				printf("%s player moves piece %d to the starting point(%hd).\n", player->name, piece->id, x_location);
 				printf("%s player now has %hd/4 on pieces on the board and %hd/4 pieces on the base.\n", player->name, 1, 3);
 
-				char* dir;
 
 				if (rollDice() % 2)
 				{
-					piece->direction = CLOCKWISE;
-					dir = "clockwise";
+					printf("The coin toss was head, %s moves piece %hd will move in clockwise direction.\n", player->name, piece->id);
+					return true;
 				}
 				else
 				{
-					piece->direction = ANTICLOCKWISE;
-					dir = "counterclockwise";
+					printf("The coin toss was tail, %s moves piece %hd will move in counterclockwise direction.\n", player->name, piece->id);
+					return true;
 				}
 
 
-				printf("%s moves piece %hd will move in %s direction.\n", player->name, piece->id, dir);
-				return true;
 			}
 			else
 			{

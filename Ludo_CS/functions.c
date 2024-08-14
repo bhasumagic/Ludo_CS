@@ -83,6 +83,23 @@ void setOrder(Player* p1, Player* p2, Player* p3, Player* p4, Color max_player)
 }
 
 
+// translate integer location to a cell id (0 - 51)
+short getLoc(short position)
+{
+	if (position < 0)
+		return ((52 + position) % 52);
+	else
+		return (position % 52);
+}
+
+
+// get the destination cell for a dice roll
+short getPosition(Player* player, Piece* piece)
+{
+	return getLoc(piece->location + (player->current_roll * piece->direction));
+}
+
+
 // get the number of pieces in the board of a given player
 short getBoardPieceCount(Player* player)
 {
@@ -166,9 +183,50 @@ const char* getName(Color color)
 }
 
 
-// check the range 
-short isRangeClear(Player* player)
+// check the range and returns the destination for the piece to move 
+short isRangeClear(Player* player, Piece* piece)
 {
+	if ((v_map[0][0])->color == piece->color)
+		return CANBLOCK;
 
+	if (piece->direction == CLOCKWISE)
+	{
+		for (short i = piece->location; i < (piece->location + player->current_roll); i++)
+		{
+			for (short i = 0; i < 4; i++)
+			{
+				for (short j = 0; j < 4; j++)
+				{
+					if ((v_map[i][j])->color == piece->color)
+						return CANBLOCK;
+					else if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
+						return (v_map[i][j])->location - 1;
+				}
+			}
+		}
+
+	}
+	else    // if the direction is counterclockwise
+	{
+		//for (short i = piece->location; i < (piece->location + player->current_roll); i++)
+		//{
+		//	for (short i = 0; i < 4; i++)
+		//	{
+		//		for (short j = 0; j < 4; j++)
+		//		{
+		//			if ((v_map[i][j])->color == piece->color)
+		//				return CANBLOCK;
+		//			else if ((v_map[0][0])->block && (v_map[i][j])->color != piece->color)
+		//				return (v_map[i][j])->location - 1;
+		//		}
+		//	}
+		//}
+	}
+	{
+
+	}
+	{
+
+	}
 }
 

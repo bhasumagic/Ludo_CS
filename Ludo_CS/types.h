@@ -8,6 +8,7 @@
 #define CLOCKWISE 1
 #define ANTICLOCKWISE -1
 #define NONE 0
+#define CANBLOCK -4
 
 #define LINE for (short i = 0; i < 100; i++) printf("_")
 #define HASHLINE for (short i = 0; i < 100; i++) printf("#")
@@ -30,7 +31,6 @@ typedef struct
 	Color color;
 	bool block;
 	short id;
-	short block_id;
 	short location;
 	short direction;
 	short capture_count;

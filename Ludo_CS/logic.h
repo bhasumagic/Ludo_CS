@@ -1,15 +1,17 @@
-#include "types.h"
-
 #pragma once
+
+#include "types.h"
 
 // prototypes of the functions that are called int the main unit
 
-extern int game_round_count;
-
 Player initPlayer(Color color);
 
-void start(Player* player1, Player* player2, Player* player3, Player* player4);
+Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2);
 
-bool game_round(Player* p1, Player* p2, Player* p3, Player* p4);
+void addToBlock(Block_p block, Piece_p piece);
 
+void killBlock(Block_p block, Player_p player);
 
+void start(Player_p player1, Player_p player2, Player_p player3, Player_p player4); 
+
+void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Player_p player4);

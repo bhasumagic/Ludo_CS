@@ -110,7 +110,7 @@ void addToBlock(Block_p block, Piece_p piece)
 // destroy an existing block
 void killBlock(Block_p block, Player_p player)
 {
-	for (short i = 0; i < 2; i++)
+	for (short i = 0; i < 4; i++)
 		if (block->pieces[i] != NULL)
 			(block->pieces[i])->block = false;
 	

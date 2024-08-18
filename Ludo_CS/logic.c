@@ -52,8 +52,8 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 {
 	Block_p block = (Block_p)malloc(sizeof(Block));
 
-	// if there is a allocation error
-	if (block == NULL)
+	// if there is a allocation error and the duplication error
+	if (block == NULL || p1 == p2) 
 		return NULL;
 
 	block->pieces[0] = p1;
@@ -73,12 +73,15 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 	if (player->b[0] == NULL)
 	{
 		player->b[0] = block;
-		block->name = "B1";
+		block->name = "Block1";
+		v_map_b[player->order][0] = block;
+
 	}
 	else if (player->b[1] == NULL)
 	{
 		player->b[1] = block;
-		block->name = "B2";
+		block->name = "Block2";
+		v_map_b[player->order][1] = block;
 	}
 
 	// update piece details
@@ -115,9 +118,15 @@ void killBlock(Block_p block, Player_p player)
 			(block->pieces[i])->block = false;
 	
 	if (player->b[0] != NULL)
+	{
 		player->b[0] = NULL;
-	else if(player->b[1] != NULL)
+		v_map_b[player->order][0] = NULL;
+	}
+	else if (player->b[1] != NULL)
+	{
 		player->b[1] = NULL;
+		v_map_b[player->order][1] = NULL;
+	}
 
 	free(block);
 }
@@ -177,21 +186,6 @@ void start(Player_p player1, Player_p player2, Player_p player3, Player_p player
 	v_map_p[3][2] = &(player4->p[2]);
 	v_map_p[3][3] = &(player4->p[3]);
 
-
-	// maping the virtual map for blocks
-
-	v_map_b[0][0] = player1->b[0];
-	v_map_b[0][1] = player1->b[1];
-		  
-	v_map_b[1][0] = player2->b[0];
-	v_map_b[1][1] = player2->b[1];
-		  
-	v_map_b[2][0] = player3->b[0];
-	v_map_b[2][1] = player3->b[1];
-		  
-	v_map_b[3][0] = player4->b[0];
-	v_map_b[3][1] = player4->b[1];
-
 }
 
 
@@ -214,7 +208,7 @@ bool move(Player_p player)
 			if (status == AVAILABLE)	// when there is nothing in the block
 			{
 
-				printf("\t%s player moves piece %s to the starting point(%hd).\n", player->name, getPID(piece), x_location);
+				printf("\t%s player moves piece %s to the starting point(L%hd).\n", player->name, getPID(piece), x_location);
 				piece->location = x_location; 
 
 				toss(piece);
@@ -225,8 +219,7 @@ bool move(Player_p player)
 			}
 			else if (status == CANCAPTURE)
 			{
-				printf("\t%s player moves piece %s to the starting point(%hd).\n", player->name, getPID(piece), x_location);
-				piece->location = x_location;
+				printf("\t%s player moves piece %s to the starting point(L%hd).\n", player->name, getPID(piece), x_location);
 
 				captureP(piece, getPiece(x_location));
 
@@ -239,8 +232,8 @@ bool move(Player_p player)
 			}
 			else if (status == BLOCKED)
 			{
-				printf("%s piece %s is blocked from moving from BASE to %hd by %s block %s\n", player->name, getPID(piece), x_location, getName(getBlock(x_location)->color), getBlock(x_location)->name);
-				printf("%s does not have other pieces in the board to move instead of the blocked piece. Ignoring the throw and moving on to the next player.\n", player->name);
+				printf("\t%s piece %s is blocked from moving from BASE to %hd by %s block %s\n", player->name, getPID(piece), x_location, getName(getBlock(x_location)->color), getBlock(x_location)->name);
+				printf("\t%s does not have other pieces in the board to move instead of the blocked piece.\n\tIgnoring the throw and moving on to the next player.\n", player->name);
 
 				return false;
 			}

@@ -23,6 +23,24 @@ int main()
 	start(&player1, &player2, &player3, &player4);
 
 	LINE;
+	
+	// for testing purposes
+	Player_p array[4] = { &player1, &player2, &player3, &player4 };
+
+	for (short i = 0; i < 4; i++)
+	{
+		if (array[i]->color == GREEN) 
+		{
+			array[i]->p[3].location = 15;
+		}
+		if (array[i]->color == BLUE) 
+		{
+			initBlock(array[i], &(array[i]->p[0]), &(array[i]->p[1]))->location = 2;
+		}
+	}
+
+
+
 
 
 	// game loop

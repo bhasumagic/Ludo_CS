@@ -15,6 +15,7 @@
 #define CANCAPTURE -6
 #define BLOCKED -7
 #define AVAILABLE -8
+#define NOTBASE 100
 
 
 #define LINE printf("\n____________________________________________________________________________________________________\n");
@@ -39,6 +40,7 @@ typedef struct
 	bool block;
 	short id;
 	short location;
+	short distance;
 	short direction;
 	short capture_count;
 	short mystery_count;
@@ -52,9 +54,9 @@ typedef const Piece* c_Piece_p;
 typedef struct
 {
 	Piece_p pieces[4];
-	char* name;
 	float move; 
 	Color color;
+	short id;
 	short location;
 	short direction;
 } Block;

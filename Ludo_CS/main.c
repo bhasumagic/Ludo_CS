@@ -24,31 +24,34 @@ int main()
 
 	LINE;
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// for testing purposes
-	Player_p array[4] = { &player1, &player2, &player3, &player4 };
+	//Player_p array[4] = { &player1, &player2, &player3, &player4 };
 
-	for (short i = 0; i < 4; i++)
-	{
-		if (array[i]->color == GREEN) 
-		{
-			array[i]->p[3].location = 15;
-		}
-		if (array[i]->color == BLUE) 
-		{
-			initBlock(array[i], &(array[i]->p[0]), &(array[i]->p[1]))->location = 2;
-		}
-	}
+	//for (short i = 0; i < 4; i++)
+	//{
+	//	if (array[i]->color == GREEN) 
+	//	{
+	//		array[i]->p[3].location = 28;
+	//	}
+	//	if (array[i]->color == BLUE) 
+	//	{
+	//		Block_p temp = initBlock(array[i], &(array[i]->p[0]), &(array[i]->p[1]));
+	//		temp->location = 2;
+	//		temp->pieces[0]->location = NOTBASE;
+	//		temp->pieces[1]->location = NOTBASE;
+	//	}
+	//}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
+	getchar();
 	// game loop
 	int c = 0;
-	while (c < 100)
+	while (c < 300)
 	{
 		c++;
 		game_round_runner(&player1, &player2, &player3, &player4);
+		getchar();
 		LINE;
 	}
 }

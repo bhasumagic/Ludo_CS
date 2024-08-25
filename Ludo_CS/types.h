@@ -2,24 +2,29 @@
 
 #include <stdbool.h>
 
-#define NEWLINE printf("\n")
-
 // these are just some intigers just to compare.
 #define CLOCKWISE 1
 #define NONE 0
 #define ANTICLOCKWISE -1
-#define BASE -2
-#define HOME -3
+
 #define ADDTOBLOCK -4
 #define NEWBLOCK -5
 #define CANCAPTURE -6
 #define BLOCKED -7
-#define AVAILABLE -8
+#define AVAILABLE -8 
+
+#define BASE -2
+#define HOME 106
+#define BHAWANA 9
+#define KOTUWA 27
+#define PITAKOTUWA 46
 #define NOTBASE 100
 
+#define RANDELL (short)rand()%52
 
+#define NEWLINE printf("\n")
 #define LINE printf("\n____________________________________________________________________________________________________\n");
-#define HASHLINE printf("\n####################################################################################################\n");
+#define HLINE printf("####################################################################################################\n");
 
 
 // defining a new type Color
@@ -38,12 +43,16 @@ typedef struct
 	float move;
 	Color color;
 	bool block;
+	bool effected;
+	bool homestraght;
+	char effect;
 	short id;
 	short location;
 	short distance;
 	short direction;
 	short capture_count;
 	short mystery_count;
+	
 } Piece;
 
 typedef Piece* Piece_p;
@@ -84,5 +93,7 @@ typedef const Player* c_Player_p;
 
 // globals that are used in logics
 extern int game_round_count;
-extern Piece_p v_map_p[4][4];
-extern Block_p v_map_b[4][2];
+extern Player_p players[4];
+extern char map[52];
+extern short mystery_cell;
+short trafiic_count;

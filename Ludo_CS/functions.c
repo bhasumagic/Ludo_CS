@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include "functions.h"
 #include "types.h"
 
 
+// to update the color id according to the max rolled player
+// these id will be matching the order of the piece pointer map
+static char yellow = 1;
+static char blue = 2;
+static char red = 3;
+static char green = 4;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // basic helper functions
-
 
 // rolls the die
 short rollDice()
@@ -34,35 +39,40 @@ const char* getPID(c_Piece_p piece)
 {
 	switch (piece->color)
 	{
-	case YELLOW:	switch (piece->id)
-	{
-	case 1: return "Y1";
-	case 2: return "Y2";
-	case 3: return "Y3";
-	case 4: return "Y4";
+	case YELLOW:	
+		switch (piece->id)
+		{
+		case 1: return "Y1";
+		case 2: return "Y2";
+		case 3: return "Y3";
+		case 4: return "Y4";
+		}
+	case BLUE:		
+		switch (piece->id)
+		{
+		case 1: return "B1";
+		case 2: return "B2";
+		case 3: return "B3";
+		case 4: return "B4";
+		}
+	case RED:		
+		switch (piece->id)
+		{
+		case 1: return "R1";
+		case 2: return "R2";
+		case 3: return "R3";
+		case 4: return "R4";
+		}
+	case GREEN:		
+		switch (piece->id)
+		{
+		case 1: return "G1";
+		case 2: return "G2";
+		case 3: return "G3";
+		case 4: return "G4";
+		}
 	}
-	case BLUE:		switch (piece->id)
-	{
-	case 1: return "B1";
-	case 2: return "B2";
-	case 3: return "B3";
-	case 4: return "B4";
-	}
-	case RED:		switch (piece->id)
-	{
-	case 1: return "R1";
-	case 2: return "R2";
-	case 3: return "R3";
-	case 4: return "R4";
-	}
-	case GREEN:		switch (piece->id)
-	{
-	case 1: return "G1";
-	case 2: return "G2";
-	case 3: return "G3";
-	case 4: return "G4";
-	}
-	}
+	return "";
 }
 
 // returns the block name
@@ -70,27 +80,40 @@ const char* getBID(c_Block_p block)
 {
 	switch (block->color)
 	{
-	case YELLOW:	switch (block->id)
-	{
-	case 1: return "Y#1";
-	case 2: return "Y#2";
+	case YELLOW:	
+		switch (block->id)
+		{
+		case 1: return "Y#1";
+		case 2: return "Y#2";
+		}
+	case BLUE:		
+		switch (block->id)
+		{
+		case 1: return "B#1";
+		case 2: return "B#2";
+		}
+	case RED:		
+		switch (block->id)
+		{
+		case 1: return "R#1";
+		case 2: return "R#2";
+		}
+	case GREEN:		
+		switch (block->id)
+		{
+		case 1: return "G#1";
+		case 2: return "G#2";
+		}
 	}
-	case BLUE:		switch (block->id)
-	{
-	case 1: return "B#1";
-	case 2: return "B#2";
-	}
-	case RED:		switch (block->id)
-	{
-	case 1: return "R#1";
-	case 2: return "R#2";
-	}
-	case GREEN:		switch (block->id)
-	{
-	case 1: return "G#1";
-	case 2: return "G#2";
-	}
-	}
+}
+
+// get the direction name
+const char* getDirName(short dir)
+{
+	if (dir == CLOCKWISE)
+		return "clockwise";
+	else
+		return "counterclockwise";
 }
 
 // translate integer location to a cell id (0 - 51)
@@ -104,7 +127,7 @@ short getLoc(short position)
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // functions that deals with original instances
 
 // rolls the dice for players
@@ -121,12 +144,12 @@ short rolls(Player_p player, bool out)
 // toss the coin for a piece and decide the direction
 void toss(Piece_p piece)
 {
-	if (rollDice() % 2)	// head is 0
+	if (rand() % 2)		// head is 1
 	{
 		piece->direction = CLOCKWISE;
 		printf("\tThe coin toss was head, piece %s will move in clockwise direction.\n", getPID(piece));
 	}
-	else				// tail is 1
+	else				// tail is 0
 	{
 		piece->direction = ANTICLOCKWISE;
 		printf("\tThe coin toss was tail, piece %s will move in counterclockwise direction.\n", getPID(piece));
@@ -134,7 +157,7 @@ void toss(Piece_p piece)
 }
 
 // capture a piece
-void captureP(Piece_p attacking_piece, Piece_p captured_piece)
+Piece_p captureP(Piece_p attacking_piece, Piece_p captured_piece)
 {
 	attacking_piece->capture_count++;
 	attacking_piece->location = captured_piece->location;
@@ -147,6 +170,8 @@ void captureP(Piece_p attacking_piece, Piece_p captured_piece)
 	captured_piece->block = false;	
 
 	printf("\t%s piece %s lands on square L%hd, captures %s piece %s, and returns it to the base.\n", getName(attacking_piece->color), getPID(attacking_piece), attacking_piece->location, getName(captured_piece->color), getPID(captured_piece));
+
+	return attacking_piece;
 }
 
 // swap the order of players
@@ -163,6 +188,12 @@ void setOrder(Player_p player1, Player_p player2, Player_p player3, Player_p pla
 		*player2 = *player3;
 		*player3 = *player4;
 		*player4 = temp1;
+
+		yellow = 4;
+		blue = 1;
+		red = 2;
+		green = 3;
+
 		break;
 
 	case RED:
@@ -170,6 +201,12 @@ void setOrder(Player_p player1, Player_p player2, Player_p player3, Player_p pla
 		*player2 = *player4;
 		*player3 = temp1;
 		*player4 = temp2;
+
+		yellow = 3;
+		blue = 4;
+		red = 1;
+		green = 2;
+
 		break;
 
 	case GREEN:
@@ -177,6 +214,12 @@ void setOrder(Player_p player1, Player_p player2, Player_p player3, Player_p pla
 		*player2 = temp1;
 		*player3 = temp2;
 		*player4 = temp3;
+
+		yellow = 2;
+		blue = 3;
+		red = 4;
+		green = 1;
+
 	}
 
 	player1->order = 0;
@@ -211,7 +254,21 @@ Block_p getOneBlock(c_Player_p player)
 		return NULL;
 }
 
-
+// get the closest piece to home
+Piece_p closestPieceToHome(Player_p player)
+{
+	short min = getHomeDistance(&(player->p[0]));
+	Piece_p temp = &(player->p[0]);
+	for (short i = 1; i < 4; i++)
+	{
+		if (getHomeDistance(&(player->p[i])) < min)
+		{
+			min = getHomeDistance(&(player->p[i]));
+			temp = &(player->p[i]);
+		}
+	}
+	return temp;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Info functions
@@ -225,10 +282,10 @@ short getHomeDistance(c_Piece_p piece)
 		return (short)(60 - piece->distance);
 }
 
-// get the destination cell for a dice roll
-short getDestination(c_Player_p player, c_Piece_p piece)
+// get the destination number(not a valid location) for a dice roll
+short getDestination(c_Piece_p piece, short roll)
 {
-	return getLoc(piece->location + (player->current_roll * piece->direction));
+	return piece->location + (short)(roll * piece->direction * piece->move);
 }
 
 // get the number of pieces in the board of a given player
@@ -252,13 +309,13 @@ short getMax(c_Player_p player1, c_Player_p player2, c_Player_p player3, c_Playe
 	short d = player4->current_roll;
 
 	if (a > b && a > c && a > d)
-		return player1->color;
+		return (short)player1->color;
 	else if (b > a && b > c && b > d)
-		return player2->color;
+		return (short)player2->color;
 	else if (c > a && c > b && c > d)
-		return player3->color;
+		return (short)player3->color;
 	else if (d > a && d > b && d > c)
-		return player4->color;
+		return (short)player4->color;
 	else
 	{
 		printf("\n\tThere is no unique max value. rolling again!\n\n");
@@ -288,69 +345,143 @@ bool checkBlock(c_Block_p block, c_Piece_p piece)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// functions involving virtual maps
+// functions involving map
+
+// provide the player code to encoding functions
+static char getColId(Color color)
+{
+	switch (color)
+	{
+	case YELLOW	:return yellow;
+	case BLUE	:return blue;
+	case RED	:return red;
+	case GREEN  :return green;
+	}
+}
+
+// encode a piece to a map location
+static char encodePiece(Piece_p piece)
+{
+	char loc = 10 * getColId(piece->color);
+	loc += (char)piece->id;
+	
+	return loc;
+}
+
+// encode a block to a map location
+static char encodeBlock(Block_p block)
+{
+	char loc = 10 * getColId(block->color);
+	loc += (char)block->id + 4;
+
+	return loc;
+}
 
 // get the piece pointer of a specific location
 Piece_p getPiece(short location)
 {
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == (v_map_p[i][j])->location)
-				return v_map_p[i][j];
-		}
-	}
-	return NULL;
+	char PlayerID = map[location] / 10;
+	char PieceID = map[location] % 10;
+
+	if (PlayerID > 0 && PieceID <= 4)
+		return &(players[PlayerID - 1]->p[PieceID - 1]);
+	else
+		return NULL;
 }
 
 // get the block pointer of a specific location
 Block_p getBlock(short location)
 {
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 2; j++)
-		{
-			if ((v_map_b[i][j]) != NULL && location == (v_map_b[i][j])->location)
-				return v_map_b[i][j];
-		}
-	}
-	return NULL;
+	char PlayerID = map[location] / 10;
+	char BlockID = map[location] % 10;
+
+	if (PlayerID > 0 && BlockID > 4)
+		return players[PlayerID - 1]->b[BlockID - 4 - 1];
+	else
+		return NULL;
 }
 
-// checking whether the cell clear for a player and return the status of the cell
-short cellStatus(c_Player_p player, short location)
+// add a piece to map
+void addPieceToMap(Piece_p piece, short last_loacation)
+{
+	map[last_loacation] = 0;
+	map[piece->location] = encodePiece(piece);
+}
+
+// add a block to map
+void addBlockToMap(Block_p block, short last_loacation)
+{
+	map[last_loacation] = 0;
+	map[block->location] = encodeBlock(block);
+}
+
+
+// checking whether the cell clear for a color(player) and return the status of the cell
+short cellStatus(Color color, short location)
 {
 	// checking for blocks
-	for (short i = 0; i < 4; i++)
+	Block_p block = getBlock(location);
+	if (block)
 	{
-		for (short j = 0; j < 2; j++)
-		{
-			if (v_map_b[i][j] != NULL && location == v_map_b[i][j]->location && player->color != v_map_b[i][j]->color)
+		if (block->color != color)
 				return BLOCKED;
-			else if (v_map_b[i][j] != NULL && location == v_map_b[i][j]->location && player->color == v_map_b[i][j]->color)
+		else if (block->color == color)
 				return ADDTOBLOCK;
-		}
-	}	
-	
-	// checking for pieces
-	for (short i = 0; i < 4; i++)
-	{
-		for (short j = 0; j < 4; j++)
-		{
-			if (location == v_map_p[i][j]->location && player->color != v_map_p[i][j]->color && !(v_map_p[i][j]->block))
-				return CANCAPTURE;
-			else if (location == v_map_p[i][j]->location && player->color == v_map_p[i][j]->color && !(v_map_p[i][j]->block))
-				return NEWBLOCK;
-		}
 	}
-	return AVAILABLE;		// worst case, when there is nothing in the given cell/location
+
+	// checking for pieces
+	Piece_p piece = getPiece(location);
+	if (piece)
+	{
+		if (piece->color != color)
+			return CANCAPTURE;
+		else if (piece->color == color)
+			return NEWBLOCK;
+	}
+
+	return AVAILABLE;
 }
 
-// check the range and returns the destination for the piece to move 
-short isRangeClear(c_Player_p player, c_Piece_p piece)
+// check the path across the map and return the available cell location
+short decidePath(Piece_p piece, short roll, short* status, bool out)
 {
-	
+	short start = piece->location;
+	short end = getDestination(piece, roll);
+	short dir = piece->direction;
+
+	for (short i = start + dir; i != end + dir; i += dir)
+	{
+		short loc = getLoc(i);
+
+		// if there was a same color block in the destination
+		if (i == end && cellStatus(piece->color, end) == ADDTOBLOCK)
+		{
+			*status = ADDTOBLOCK;
+			return end;
+		}
+
+		if ((map[loc] % 10) > 4)	// checking for blocks
+		{
+			if (out)
+			{
+				printf("\t%s piece %s is blocked from moving from L%hd to L%hd by %s block %s.\n", getName(piece->color), getPID(piece), start, getLoc(end), getName(getBlock(loc)->color), getBID(getBlock(loc)));
+			}
+
+			*status = BLOCKED;
+			return getLoc(i - dir);
+		}
+	}
+
+	*status = cellStatus(piece->color, getLoc(end));	// checking for pieces
+	return getLoc(end);
+
+}
+
+// look up the path using the decidePath(_) and cellStatus(_) and give the status of the path
+short lookUpPath(Piece_p piece, short roll)
+{
+	short status;	// this status is ignored here
+	return cellStatus(piece->color, decidePath(piece, roll, &status, false));
 }
 
 
@@ -374,6 +505,7 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 
 	block->move = 0.51f;	// the move is set to 1/2 or 0.5 beacuse when creating a block the moving multiple drops by 1/2
 	block->color = player->color;
+	block->location = p1->location;
 
 	if (p1->direction != p2->direction)
 		block->direction = (getHomeDistance(p1) > getHomeDistance(p2)) ? p1->direction : p2->direction;
@@ -385,14 +517,12 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 	{
 		player->b[0] = block;
 		block->id = 1;
-		v_map_b[player->order][0] = block;
 
 	}
 	else if (player->b[1] == NULL)
 	{
 		player->b[1] = block;
 		block->id = 2;
-		v_map_b[player->order][1] = block;
 	}
 
 	// update piece details
@@ -405,12 +535,12 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 }
 
 // adding another piece to the block
-void addToBlock(Block_p block, Piece_p piece)
+Block_p addToBlock(Block_p block, Piece_p piece)
 {
 	if (checkBlock(block, piece))
 	{
 		printf("Block overloading!!\n");
-		return;
+		return block;
 	}
 
 	if (block->pieces[2] == NULL)
@@ -428,6 +558,7 @@ void addToBlock(Block_p block, Piece_p piece)
 
 	piece->block = true;
 
+	return block;
 }
 
 // destroy an existing block
@@ -438,17 +569,9 @@ void killBlock(Block_p block, Player_p player)
 			(block->pieces[i])->block = false;
 
 	if (player->b[0] == block)
-	{
 		player->b[0] = NULL;
-		v_map_b[player->order][0] = NULL;
-	}
 	else if (player->b[1] == block)
-	{
 		player->b[1] = NULL;
-		v_map_b[player->order][1] = NULL;
-	}
-
-	printf("\tThe block %s by %s Player is broken now.\n", getBID(block), getName(player->color));
 
 	free(block);
 	block = NULL;

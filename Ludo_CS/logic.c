@@ -9,11 +9,14 @@
 
 // globals
 int game_round_count = 0;
-Piece_p v_map_p[4][4] = { 0 };	// virtual map for pieces
-Block_p v_map_b[4][2] = { 0 };	// virtual map for blocks
+char map[52] = { 0 };			// map for the board path
+Player_p players[4] = { 0 };	// pointers for players
+short mystery_cell = 2;				// mystery cell (0-52)
+short trafiic_count = 0;		// count the traffic in order to stop the game in case of an unavoidable path block
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // main functions
 // These fucntions is called in the main method
 
@@ -35,6 +38,9 @@ Player initPlayer(Color color)
 		player.p[i].move = 1.0f;
 		player.p[i].color = color;
 		player.p[i].block = false;
+		player.p[i].effected = false;
+		player.p[i].homestraght = false;
+		player.p[i].effect = NONE;
 		player.p[i].id = i + 1;
 		player.p[i].location = BASE;
 		player.p[i].distance = 0;
@@ -56,7 +62,6 @@ void start(Player_p player1, Player_p player2, Player_p player3, Player_p player
 	srand((unsigned int)time(NULL));
 
 	short max_player;
-
 	do
 	{
 		printf("Yellow rolls %d\n", rolls(player1, false));
@@ -70,28 +75,11 @@ void start(Player_p player1, Player_p player2, Player_p player3, Player_p player
 
 	setOrder(player1, player2, player3, player4, max_player);
 
-	// maping the virtual map for pieces
-	
-	v_map_p[0][0] = &(player1->p[0]);
-	v_map_p[0][1] = &(player1->p[1]);
-	v_map_p[0][2] = &(player1->p[2]);
-	v_map_p[0][3] = &(player1->p[3]);
-		 
-	v_map_p[1][0] = &(player2->p[0]);
-	v_map_p[1][1] = &(player2->p[1]);
-	v_map_p[1][2] = &(player2->p[2]);
-	v_map_p[1][3] = &(player2->p[3]);
-		 
-	v_map_p[2][0] = &(player3->p[0]);
-	v_map_p[2][1] = &(player3->p[1]);
-	v_map_p[2][2] = &(player3->p[2]);
-	v_map_p[2][3] = &(player3->p[3]);
-		 
-	v_map_p[3][0] = &(player4->p[0]);
-	v_map_p[3][1] = &(player4->p[1]);
-	v_map_p[3][2] = &(player4->p[2]);
-	v_map_p[3][3] = &(player4->p[3]);
-
+	// maping the pointer list for players
+	players[0] = player1;
+	players[1] = player2;
+	players[2] = player3;
+	players[3] = player4;
 }
 
 
@@ -109,4 +97,4 @@ void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Pla
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

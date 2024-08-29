@@ -21,7 +21,7 @@
     <ClCompile Include="logic.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="move.c">
+    <ClCompile Include="players.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="functions.c">
@@ -38,7 +38,7 @@
     <ClInclude Include="functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="move.h">
+    <ClInclude Include="players.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

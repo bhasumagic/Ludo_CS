@@ -27,10 +27,10 @@ const char* getName(Color color)
 {
 	switch (color)
 	{
-	case YELLOW: return "Yellow";
-	case BLUE: return "Blue";
-	case RED: return "Red";
-	case GREEN: return "Green";
+	case YELLOW: return "\033[0;93mYellow";
+	case BLUE: return "\033[0;34mBlue";
+	case RED: return "\033[0;31mRed";
+	case GREEN: return "\033[0;32mGreen";
 	}
 }
 
@@ -42,34 +42,34 @@ const char* getPID(c_Piece_p piece)
 	case YELLOW:	
 		switch (piece->id)
 		{
-		case 1: return "Y1";
-		case 2: return "Y2";
-		case 3: return "Y3";
-		case 4: return "Y4";
+		case 1: return "\033[0;93mY1";
+		case 2: return "\033[0;93mY2";
+		case 3: return "\033[0;93mY3";
+		case 4: return "\033[0;93mY4";
 		}
 	case BLUE:		
 		switch (piece->id)
 		{
-		case 1: return "B1";
-		case 2: return "B2";
-		case 3: return "B3";
-		case 4: return "B4";
+		case 1: return "\033[0;34mB1";
+		case 2: return "\033[0;34mB2";
+		case 3: return "\033[0;34mB3";
+		case 4: return "\033[0;34mB4";
 		}
 	case RED:		
 		switch (piece->id)
 		{
-		case 1: return "R1";
-		case 2: return "R2";
-		case 3: return "R3";
-		case 4: return "R4";
+		case 1: return "\033[0;31mR1";
+		case 2: return "\033[0;31mR2";
+		case 3: return "\033[0;31mR3";
+		case 4: return "\033[0;31mR4";
 		}
 	case GREEN:		
 		switch (piece->id)
 		{
-		case 1: return "G1";
-		case 2: return "G2";
-		case 3: return "G3";
-		case 4: return "G4";
+		case 1: return "\033[0;32mG1";
+		case 2: return "\033[0;32mG2";
+		case 3: return "\033[0;32mG3";
+		case 4: return "\033[0;32mG4";
 		}
 	}
 	return "";
@@ -120,7 +120,7 @@ const char* getDirName(short dir)
 short getLoc(short position)
 {
 	if (position < 0)
-		return ((52 + position) % 52);
+		return ((52 + position));
 	else
 		return (position % 52);
 }
@@ -129,6 +129,16 @@ short getLoc(short position)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // functions that deals with original instances
+
+// get a player by color
+Player_p getPlayer(Color color)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		if (players[i]->color == color)
+			return players[i];
+	}
+}
 
 // rolls the dice for players
 short rolls(Player_p player, bool out)
@@ -156,7 +166,31 @@ void toss(Piece_p piece)
 	}
 }
 
-// capture a piece
+// get the maximum roll number from players
+short getMax(c_Player_p player1, c_Player_p player2, c_Player_p player3, c_Player_p player4)
+{
+	short a = player1->current_roll;
+	short b = player2->current_roll;
+	short c = player3->current_roll;
+	short d = player4->current_roll;
+
+	if (a > b && a > c && a > d)
+		return (short)player1->color;
+	else if (b > a && b > c && b > d)
+		return (short)player2->color;
+	else if (c > a && c > b && c > d)
+		return (short)player3->color;
+	else if (d > a && d > b && d > c)
+		return (short)player4->color;
+	else
+	{
+		printf("\n\t\033[0mThere is no unique max value. rolling again!\n\n");
+		return -1;
+	}
+}
+
+
+// capture a piece by a piece
 Piece_p captureP(Piece_p attacking_piece, Piece_p captured_piece)
 {
 	attacking_piece->capture_count++;
@@ -169,10 +203,57 @@ Piece_p captureP(Piece_p attacking_piece, Piece_p captured_piece)
 	captured_piece->move = 1.0f;	
 	captured_piece->block = false;	
 
-	printf("\t%s piece %s lands on square L%hd, captures %s piece %s, and returns it to the base.\n", getName(attacking_piece->color), getPID(attacking_piece), attacking_piece->location, getName(captured_piece->color), getPID(captured_piece));
+	printf("\t%s piece %s lands on square %hd, captures %s piece %s\033[0m, and returns it to the base.\n", getName(attacking_piece->color), getPID(attacking_piece), attacking_piece->location, getName(captured_piece->color), getPID(captured_piece));
 
 	return attacking_piece;
 }
+
+// capture a block by a block
+Block_p captureBB(Block_p attacking_block, Block_p captured_block)
+{
+	short count = (blockSize(captured_block)/blockSize(attacking_block));
+	for (short i = 0; i < 4; i++){if(attacking_block->pieces[i]) attacking_block->pieces[i]->capture_count += count ;}
+	attacking_block->location = captured_block->location;
+	for (short i = 0; i < 4; i++){if(attacking_block->pieces[i]) attacking_block->pieces[i]->location = attacking_block->location;}
+
+	for (short i = 0; i < 4; i++)
+	{
+		if(captured_block->pieces[i]) 
+		{
+			captured_block->pieces[i]->location = BASE;
+			captured_block->pieces[i]->direction = NONE;
+			captured_block->pieces[i]->capture_count = 0;
+			captured_block->pieces[i]->mystery_count = 0;
+			captured_block->pieces[i]->move = 1.0f;
+			captured_block->pieces[i]->block = false;
+		}
+	}
+
+	printf("\t%s block %s lands on square %hd, captures %s piece %s\033[0m, and returns all the pieces to the base.\n", getName(attacking_block->color), getBID(attacking_block), attacking_block->location, getName(captured_block->color), getPID(captured_block));
+
+	killBlock(captured_block, getPlayer(captured_block->color));
+
+	return attacking_block;
+}
+
+// capture a piece by a block
+Block_p captureBP(Block_p attacking_block, Piece_p captured_piece)
+{
+	attacking_block->location = captured_piece->location;
+	for (short i = 0; i < 4; i++){if(attacking_block->pieces[i]) attacking_block->pieces[i]->location = attacking_block->location;}
+
+	captured_piece->location = BASE;
+	captured_piece->direction = NONE;
+	captured_piece->capture_count = 0;
+	captured_piece->mystery_count = 0;
+	captured_piece->move = 1.0f;	
+	captured_piece->block = false;	
+
+	printf("\t%s block %s lands on square %hd, captures %s piece %s\033[0m, and returns it to the base.\n", getName(attacking_block->color), getPID(attacking_block), attacking_block->location, getName(captured_piece->color), getPID(captured_piece));
+
+	return attacking_block;
+}
+
 
 // swap the order of players
 void setOrder(Player_p player1, Player_p player2, Player_p player3, Player_p player4, Color max_player)
@@ -227,8 +308,8 @@ void setOrder(Player_p player1, Player_p player2, Player_p player3, Player_p pla
 	player3->order = 2;
 	player4->order = 3;
 
-	printf("\n%s player has the highest roll and will begin the game.\n", player1->name);
-	printf("The order of a single round is %s, %s, %s, and %s.\n", player1->name, player2->name, player3->name, player4->name);
+	printf("\n%s\033[0m player has the highest roll and will begin the game.\n", player1->name);
+	printf("The order of a single round is %s\033[0m, %s\033[0m, %s\033[0m, and %s.\n", player1->name, player2->name, player3->name, player4->name);
 
 }
 
@@ -254,7 +335,7 @@ Block_p getOneBlock(c_Player_p player)
 		return NULL;
 }
 
-// get the closest piece to home
+// get the closest piece to home of a given player
 Piece_p closestPieceToHome(Player_p player)
 {
 	short min = getHomeDistance(&(player->p[0]));
@@ -269,6 +350,7 @@ Piece_p closestPieceToHome(Player_p player)
 	}
 	return temp;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Info functions
@@ -288,6 +370,12 @@ short getDestination(c_Piece_p piece, short roll)
 	return piece->location + (short)(roll * piece->direction * piece->move);
 }
 
+// get the destination number(not a valid location) for blocks
+short getDestinationB(c_Block_p block,short roll)
+{
+	return block->location + (short)(roll * block->direction * block->move);
+}
+
 // get the number of pieces in the board of a given player
 short getBoardPieceCount(c_Player_p player)
 {
@@ -298,29 +386,6 @@ short getBoardPieceCount(c_Player_p player)
 			count++;
 	}
 	return count;
-}
-
-// get the maximum roll number from players
-short getMax(c_Player_p player1, c_Player_p player2, c_Player_p player3, c_Player_p player4)
-{
-	short a = player1->current_roll;
-	short b = player2->current_roll;
-	short c = player3->current_roll;
-	short d = player4->current_roll;
-
-	if (a > b && a > c && a > d)
-		return (short)player1->color;
-	else if (b > a && b > c && b > d)
-		return (short)player2->color;
-	else if (c > a && c > b && c > d)
-		return (short)player3->color;
-	else if (d > a && d > b && d > c)
-		return (short)player4->color;
-	else
-	{
-		printf("\n\tThere is no unique max value. rolling again!\n\n");
-		return -1;
-	}
 }
 
 // returns the block size
@@ -342,6 +407,43 @@ bool checkBlock(c_Block_p block, c_Piece_p piece)
 	return false;
 }
 
+// checking whether a block can enter the homestaright
+bool checkBlockToHomeStraight(c_Block_p block)
+{
+	bool result = true;
+	for (short i = 0; i < 4; i++)
+	{
+		c_Piece_p piece = block->pieces[i];
+		if (piece && (piece->distance < 51 || piece->capture_count == 0))
+			result = false;
+	}
+
+	return result;
+}
+
+// gives stats about the board
+void stats()
+{
+
+	for (short i = 0; i < 4; i++)
+	{
+		NEWLINE;
+		printf("\033[0m============================\nLocation of pieces %s\033[0m\n============================\n", players[i]->name);
+		for (short j = 0; j < 4; j++)
+		{
+			const char* name = getPID(&(players[i]->p[j]));
+			short location = players[i]->p[j].location;
+			if (location == BASE)
+				printf("\033[0mPiece %s -> BASE\033[0m.", name);
+			else if ((location == HOME))
+				printf("\033[0mPiece %s -> BASE\033[0m.", name);
+			else
+				printf("\033[0mPiece %s -> %hd\033[0m.", name, location);
+
+			NEWLINE;
+		}
+	}
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,7 +518,7 @@ void addBlockToMap(Block_p block, short last_loacation)
 }
 
 
-// checking whether the cell clear for a color(player) and return the status of the cell
+// checking whether the cell clear for a piece and return the status of the cell
 short cellStatus(Color color, short location)
 {
 	// checking for blocks
@@ -424,9 +526,9 @@ short cellStatus(Color color, short location)
 	if (block)
 	{
 		if (block->color != color)
-				return BLOCKED;
+			return BLOCKED;
 		else if (block->color == color)
-				return ADDTOBLOCK;
+			return ADDTOBLOCK;
 	}
 
 	// checking for pieces
@@ -442,8 +544,40 @@ short cellStatus(Color color, short location)
 	return AVAILABLE;
 }
 
-// check the path across the map and return the available cell location
-short decidePath(Piece_p piece, short roll, short* status, bool out)
+// checking whether the cell clear for a block and return the status of the cell
+short cellStatusB(c_Block_p checking_block, short location)
+{
+	// checking for blocks
+	Block_p block = getBlock(location);
+	if (block)
+	{
+		if (block->color != checking_block->color)
+		{
+			if (blockSize(block) <= blockSize(checking_block))
+				return CANCAPTUREBLOCK;
+			else
+				return BLOCKED;
+		}
+
+		else if (block->color == checking_block->color)
+			return MERGEBLOCK;
+	}
+
+	// checking for pieces
+	Piece_p piece = getPiece(location);
+	if (piece)
+	{
+		if (piece->color != checking_block->color)
+			return CANCAPTURE;
+		else if (piece->color == checking_block->color)
+			return ADDTOBLOCK;
+	}
+
+	return AVAILABLE;
+}
+
+// check the path across the map and return the available cell location for pieces
+short decidePath(Piece_p piece, short roll, short* status)
 {
 	short start = piece->location;
 	short end = getDestination(piece, roll);
@@ -451,39 +585,62 @@ short decidePath(Piece_p piece, short roll, short* status, bool out)
 
 	for (short i = start + dir; i != end + dir; i += dir)
 	{
-		short loc = getLoc(i);
+		*status = cellStatus(piece->color, getLoc(i));
 
-		// if there was a same color block in the destination
-		if (i == end && cellStatus(piece->color, end) == ADDTOBLOCK)
+		if (i == end && *status == ADDTOBLOCK)
+			return getLoc(end); 
+
+		if (*status == BLOCKED || *status == ADDTOBLOCK)
 		{
-			*status = ADDTOBLOCK;
-			return end;
-		}
-
-		if ((map[loc] % 10) > 4)	// checking for blocks
-		{
-			if (out)
-			{
-				printf("\t%s piece %s is blocked from moving from L%hd to L%hd by %s block %s.\n", getName(piece->color), getPID(piece), start, getLoc(end), getName(getBlock(loc)->color), getBID(getBlock(loc)));
-			}
-
 			*status = BLOCKED;
 			return getLoc(i - dir);
 		}
 	}
 
-	*status = cellStatus(piece->color, getLoc(end));	// checking for pieces
 	return getLoc(end);
-
 }
 
-// look up the path using the decidePath(_) and cellStatus(_) and give the status of the path
+// check the path across the map and return the available cell location for blocks
+short decidePathB(Block_p block, short roll, short* status)
+{
+	short start = block->location;
+	short end = getDestinationB(block, roll);
+	short dir = block->direction;
+
+	for (short i = start + dir; i != end + dir; i += dir)
+	{
+		*status = cellStatusB(block, getLoc(i));	
+
+		if (i == end && (*status == MERGEBLOCK || *status == CANCAPTUREBLOCK))
+			return getLoc(end); 	
+
+		if (*status == BLOCKED || *status == MERGEBLOCK || *status == CANCAPTUREBLOCK)
+		{
+			*status = BLOCKED;
+			return getLoc(i - dir);
+		}
+	}
+
+	return getLoc(end);
+}
+
+// look up the path using the decidePath(_) and return the status of the cell that a piece can jump
 short lookUpPath(Piece_p piece, short roll)
 {
 	short status;	// this status is ignored here
-	return cellStatus(piece->color, decidePath(piece, roll, &status, false));
+	return decidePath(piece, roll, &status);
+
+	return status;
 }
 
+// look up the path using the decidePathB(_) and return the status of the cell that a block can jump
+short lookUpPathB(Block_p block, short roll)
+{
+	short status;	// this status is ignored here
+	return decidePath(block, roll, &status);
+
+	return status;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -560,6 +717,21 @@ Block_p addToBlock(Block_p block, Piece_p piece)
 
 	return block;
 }
+
+// merge two blocks
+Block_p mergeBlock(Block_p jumping_block, Block_p static_block)
+{
+	
+	addToBlock(jumping_block, static_block->pieces[0]);
+	addToBlock(jumping_block, static_block->pieces[1]);
+
+	killBlock(static_block, getPlayer(static_block->color));
+
+	printf("\t%s player's %s and %s merged into a one block(%s)", getName(jumping_block->color), getBID(jumping_block), getBID(static_block), getBID(jumping_block));
+
+	return jumping_block;
+}
+
 
 // destroy an existing block
 void killBlock(Block_p block, Player_p player)

@@ -27,25 +27,6 @@ int main()
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// for testing purposes
-	Player_p array[4] = { &player1, &player2, &player3, &player4 };
-
-	for (short i = 0; i < 4; i++)
-	{
-		if (array[i]->color == GREEN) 
-		{
-			array[i]->p[3].location = 28;
-			addPieceToMap(&(array[i]->p[3]), 28);
-		}
-		if (array[i]->color == BLUE) 
-		{
-			Block_p temp = initBlock(array[i], &(array[i]->p[0]), &(array[i]->p[1]));
-			temp->location = 2;
-			temp->pieces[0]->location = NOTBASE;
-			temp->pieces[1]->location = NOTBASE;
-			addBlockToMap(temp, 2);
-		}
-	}
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	LINE;

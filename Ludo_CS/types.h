@@ -12,6 +12,8 @@
 #define CANCAPTURE -6
 #define BLOCKED -7
 #define AVAILABLE -8 
+#define	MERGEBLOCK -9
+#define CANCAPTUREBLOCK -10
 
 #define BASE -2
 #define HOME 106
@@ -23,7 +25,7 @@
 #define RANDELL (short)rand()%52
 
 #define NEWLINE printf("\n")
-#define LINE printf("\n____________________________________________________________________________________________________\n");
+#define LINE printf("\n\033[0m____________________________________________________________________________________________________\n");
 #define HLINE printf("####################################################################################################\n");
 
 
@@ -42,16 +44,14 @@ typedef struct
 {
 	float move;
 	Color color;
-	bool block;
-	bool effected;
-	bool homestraght;
-	char effect;
 	short id;
 	short location;
 	short distance;
 	short direction;
 	short capture_count;
 	short mystery_count;
+	bool block;
+	char effect;
 	
 } Piece;
 
@@ -96,4 +96,4 @@ extern int game_round_count;
 extern Player_p players[4];
 extern char map[52];
 extern short mystery_cell;
-short trafiic_count;
+short traffic_count;

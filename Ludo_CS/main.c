@@ -20,39 +20,13 @@ int main()
 
 	// starts the game by passing the player addresses
 	start(&player1, &player2, &player3, &player4);
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// for testing purposes
-	//
-	//Player_p mP = NULL;
-	//Player_p cP = NULL;
-	//Block_p mp = NULL;
-	//Block_p cp = NULL;
-	//
-	//for (short i = 0; i < 4; i++)
-	//{
-	//	if (players[i]->color == YELLOW)
-	//	{
-	//
-	//	}
-	//
-	//	if (players[i]->color == RED)
-	//	{
-	//
-	//	}
-	//}
-	//
-	//moveBlock(mP, mp, 6);
-	//
-	//stats();
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 	LINE;
 
 	// game loop
 	while (!over)
 	{
+		getchar();
 		game_round_runner(&player1, &player2, &player3, &player4);
 		LINE;
 	}

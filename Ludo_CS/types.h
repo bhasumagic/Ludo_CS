@@ -17,9 +17,6 @@
 
 #define BASE -2
 #define HOME 106
-#define BHAWANA 9
-#define KOTUWA 27
-#define PITAKOTUWA 46
 #define NOTBASE 100
 
 #define RANDELL (short)rand()%52

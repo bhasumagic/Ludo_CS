@@ -375,6 +375,38 @@ short getHomeDistance(Piece_p piece)
 		return (short)(60 - piece->distance);
 }
 
+// retun the closest movable block to home
+Piece_p getClosestToHome(Player_p player)
+{
+	Piece_p close_piece = getBoardPiece(player);
+	if (!close_piece)
+		return NULL;
+	short closest_distance = getHomeDistance(close_piece);
+
+	for (short i = 0; i < 4; i++)
+	{
+		Piece_p piece = &player->p[i];
+
+		if (canMove(piece))
+		{
+			if (getHomeDistance(piece) < closest_distance)
+			{
+				close_piece = piece;
+				closest_distance = getHomeDistance(close_piece);
+			}
+		}
+
+	}
+
+	if (close_piece)
+		return close_piece;
+	else
+		NULL;
+
+}
+
+
+
 // return the diatance to the home of a block
 short getHomeDistanceB(Block_p block)
 {
@@ -444,14 +476,31 @@ bool checkPieceToHomeStraight(Piece_p piece, short destination)
 		return false;
 
 	if (piece->color == YELLOW)
-	{
-		if (temp < 12)
-			temp += 52;
+	{ 
 		approach_loc = 52;
 
-		if (piece->direction == ANTICLOCKWISE)
-			if (temp < approach_loc && current_loc + 52 >= approach_loc && abs(piece->distance) > 51)
+		if (piece->direction == CLOCKWISE)
+		{
+			if (current_loc == 0 && temp < 7)
+				if(temp > 0)
+					return true;
+
+			if (current_loc > 45 && temp < 7)
+			{
+				temp = temp + 52;
+				if (temp > approach_loc)
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			if (current_loc < 7 && temp > 45 && abs(piece->distance) > 51)
+			{
 				return true;
+			}
+			return false;
+		}
 	}
 
 
@@ -495,6 +544,7 @@ void stats()
 		{
 			const char* name = getPID(&(players[i]->p[j]));
 			short location = players[i]->p[j].location;
+
 			if (location == BASE)
 				printf("\033[0mPiece %s -> BASE\033[0m.", name);
 			else if (location == HOME)
@@ -522,6 +572,7 @@ bool Won(Player_p player)
 			return false;
 	}
 	over = true;
+	WPlayer = player;
 	return true;
 }
 
@@ -587,6 +638,8 @@ Block_p getBlock(short location)
 // add a piece to map
 void addPieceToMap(Piece_p piece, short last_loacation)
 {
+	if (!piece || piece->location > 51)
+		return;
 	map[last_loacation] = 0;
 	map[piece->location] = encodePiece(piece);
 }
@@ -594,6 +647,8 @@ void addPieceToMap(Piece_p piece, short last_loacation)
 // add a block to map
 void addBlockToMap(Block_p block, short last_loacation)
 {
+	if (!block || block->location > 51)
+		return;
 	map[last_loacation] = 0;
 	map[block->location] = encodeBlock(block);
 }

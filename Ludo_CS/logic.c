@@ -101,10 +101,10 @@ void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Pla
 
 	printf(">>> Game round - %d\n", game_round_count);
 	// Calling for the move fucntion for each player.
-	while (move(player1));
-	while (move(player2));
-	while (move(player3));
-	while (move(player4));
+	while (!over && move(player1));
+	while (!over && move(player2));
+	while (!over && move(player3));
+	while (!over && move(player4));
 
 	stats();
 	if (mystery_cell != -52)
@@ -114,7 +114,7 @@ void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Pla
 
 
 
-	if(traffic_count >= 5)
+	if(traffic_count >= 20)
 	{
 		over = true;
 		Player_p maxPlayer = player1;

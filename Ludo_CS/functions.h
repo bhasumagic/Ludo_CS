@@ -27,6 +27,7 @@ Piece_p closestPieceToHome(Player_p player);
 // Info functions
 short getHomeDistance(Piece_p piece);
 short getHomeDistanceB(Block_p block);
+Piece_p getClosestToHome(Player_p player);
 short getDestination(Piece_p piece, short roll);
 short getDestinationB(Block_p block,short roll);
 short getBoardPieceCount(Player_p player);

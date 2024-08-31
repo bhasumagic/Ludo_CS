@@ -35,7 +35,7 @@ const char* getName(Color color)
 }
 
 // returns the piece name
-const char* getPID(c_Piece_p piece)
+const char* getPID(Piece_p piece)
 {
 	switch (piece->color)
 	{
@@ -76,33 +76,33 @@ const char* getPID(c_Piece_p piece)
 }
 
 // returns the block name
-const char* getBID(c_Block_p block)
+const char* getBID(Block_p block)
 {
 	switch (block->color)
 	{
 	case YELLOW:	
 		switch (block->id)
 		{
-		case 1: return "Y#1";
-		case 2: return "Y#2";
+		case 1: return "\033[0;93mY#1";
+		case 2: return "\033[0;93mY#2";
 		}
 	case BLUE:		
 		switch (block->id)
 		{
-		case 1: return "B#1";
-		case 2: return "B#2";
+		case 1: return "\033[0;34mB#1";
+		case 2: return "\033[0;34mB#2";
 		}
 	case RED:		
 		switch (block->id)
 		{
-		case 1: return "R#1";
-		case 2: return "R#2";
+		case 1: return "\033[0;31mR#1";
+		case 2: return "\033[0;31mR#2";
 		}
 	case GREEN:		
 		switch (block->id)
 		{
-		case 1: return "G#1";
-		case 2: return "G#2";
+		case 1: return "\033[0;32mG#1";
+		case 2: return "\033[0;32mG#2";
 		}
 	}
 }
@@ -157,17 +157,17 @@ void toss(Piece_p piece)
 	if (rand() % 2)		// head is 1
 	{
 		piece->direction = CLOCKWISE;
-		printf("\tThe coin toss was head, piece %s will move in clockwise direction.\n", getPID(piece));
+		printf("\t\033[0mThe coin toss was head, piece %s will move in clockwise direction.\n", getPID(piece));
 	}
 	else				// tail is 0
 	{
 		piece->direction = ANTICLOCKWISE;
-		printf("\tThe coin toss was tail, piece %s will move in counterclockwise direction.\n", getPID(piece));
+		printf("\t\033[0mThe coin toss was tail, piece %s will move in counterclockwise direction.\n", getPID(piece));
 	}
 }
 
 // get the maximum roll number from players
-short getMax(c_Player_p player1, c_Player_p player2, c_Player_p player3, c_Player_p player4)
+short getMax(Player_p player1, Player_p player2, Player_p player3, Player_p player4)
 {
 	short a = player1->current_roll;
 	short b = player2->current_roll;
@@ -203,7 +203,7 @@ Piece_p captureP(Piece_p attacking_piece, Piece_p captured_piece)
 	captured_piece->move = 1.0f;	
 	captured_piece->block = false;	
 
-	printf("\t%s piece %s lands on square %hd, captures %s piece %s\033[0m, and returns it to the base.\n", getName(attacking_piece->color), getPID(attacking_piece), attacking_piece->location, getName(captured_piece->color), getPID(captured_piece));
+	printf("\t%s piece %s lands on square %hd, captures %s piece %s, and returns it to the base.\n", getName(attacking_piece->color), getPID(attacking_piece), attacking_piece->location, getName(captured_piece->color), getPID(captured_piece));
 
 	return attacking_piece;
 }
@@ -229,7 +229,7 @@ Block_p captureBB(Block_p attacking_block, Block_p captured_block)
 		}
 	}
 
-	printf("\t%s block %s lands on square %hd, captures %s piece %s\033[0m, and returns all the pieces to the base.\n", getName(attacking_block->color), getBID(attacking_block), attacking_block->location, getName(captured_block->color), getPID(captured_block));
+	printf("\t%s block %s lands on square %hd, captures %s piece %s, and returns all the pieces to the base.\n", getName(attacking_block->color), getBID(attacking_block), attacking_block->location, getName(captured_block->color), getBID(captured_block));
 
 	killBlock(captured_block, getPlayer(captured_block->color));
 
@@ -249,7 +249,7 @@ Block_p captureBP(Block_p attacking_block, Piece_p captured_piece)
 	captured_piece->move = 1.0f;	
 	captured_piece->block = false;	
 
-	printf("\t%s block %s lands on square %hd, captures %s piece %s\033[0m, and returns it to the base.\n", getName(attacking_block->color), getPID(attacking_block), attacking_block->location, getName(captured_piece->color), getPID(captured_piece));
+	printf("\t%s block %s lands on square %hd, captures %s piece %s, and returns it to the base.\n", getName(attacking_block->color), getBID(attacking_block), attacking_block->location, getName(captured_piece->color), getPID(captured_piece));
 
 	return attacking_block;
 }
@@ -324,8 +324,19 @@ Piece_p getBasePiece(Player_p player)
 	return NULL;
 }
 
+// choose and return a piece in board (not HOME or BASE)
+Piece_p getBoardPiece(Player_p player)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		if (player->p[i].location != BASE && player->p[i].location != HOME && !player->p[i].block)
+			return &(player->p[i]);
+	}
+	return NULL;
+}
+
 // choose and return one block form the pieces in the base
-Block_p getOneBlock(c_Player_p player)
+Block_p getOneBlock(Player_p player)
 {
 	if (player->b[0] != NULL)
 		return player->b[0];
@@ -356,7 +367,7 @@ Piece_p closestPieceToHome(Player_p player)
 // Info functions
 
 // return the diatance to the home of a piece
-short getHomeDistance(c_Piece_p piece)
+short getHomeDistance(Piece_p piece)
 {
 	if (piece->direction == CLOCKWISE)
 		return (short)(58 - piece->distance);
@@ -364,20 +375,26 @@ short getHomeDistance(c_Piece_p piece)
 		return (short)(60 - piece->distance);
 }
 
+// return the diatance to the home of a block
+short getHomeDistanceB(Block_p block)
+{
+	return getHomeDistance(block->pieces[0]);
+}
+
 // get the destination number(not a valid location) for a dice roll
-short getDestination(c_Piece_p piece, short roll)
+short getDestination(Piece_p piece, short roll)
 {
 	return piece->location + (short)(roll * piece->direction * piece->move);
 }
 
 // get the destination number(not a valid location) for blocks
-short getDestinationB(c_Block_p block,short roll)
+short getDestinationB(Block_p block,short roll)
 {
 	return block->location + (short)(roll * block->direction * block->move);
 }
 
 // get the number of pieces in the board of a given player
-short getBoardPieceCount(c_Player_p player)
+short getBoardPieceCount(Player_p player)
 {
 	short count = 0;
 	for (short i = 0; i < 4; i++)
@@ -389,7 +406,7 @@ short getBoardPieceCount(c_Player_p player)
 }
 
 // returns the block size
-short blockSize(c_Block_p block)
+short blockSize(Block_p block)
 {
 	short count = 0;
 	for (short i = 0; i < 4; i++)
@@ -399,7 +416,7 @@ short blockSize(c_Block_p block)
 }
 
 // check whether a piece is inside a block
-bool checkBlock(c_Block_p block, c_Piece_p piece)
+bool checkBlock(Block_p block, Piece_p piece)
 {
 	for (short i = 0; i < 4; i++)
 		if (block->pieces[i] == piece)
@@ -407,26 +424,71 @@ bool checkBlock(c_Block_p block, c_Piece_p piece)
 	return false;
 }
 
-// checking whether a block can enter the homestaright
-bool checkBlockToHomeStraight(c_Block_p block)
+// check whether a piece available to move
+bool canMove(Piece_p piece)
 {
-	bool result = true;
-	for (short i = 0; i < 4; i++)
+	if (!piece->block && piece->location != BASE && piece->location != HOME)
+		return true;
+	return false;
+}
+
+
+// checking whether the piece can enter the homestraight
+bool checkPieceToHomeStraight(Piece_p piece, short destination)
+{
+	short approach_loc = (short)(piece->color - 2);
+	short current_loc = piece->location;
+	short temp = destination;
+
+	if (piece->capture_count < 1)
+		return false;
+
+	if (piece->color == YELLOW)
 	{
-		c_Piece_p piece = block->pieces[i];
-		if (piece && (piece->distance < 51 || piece->capture_count == 0))
-			result = false;
+		if (temp < 12)
+			temp += 52;
+		approach_loc = 52;
+
+		if (piece->direction == ANTICLOCKWISE)
+			if (temp < approach_loc && current_loc + 52 >= approach_loc && abs(piece->distance) > 51)
+				return true;
 	}
 
-	return result;
+
+	if (piece->direction == CLOCKWISE)
+	{
+		if (temp > approach_loc && current_loc <= approach_loc)
+			return true;
+	}
+	else
+	{
+		if (temp < approach_loc && current_loc >= approach_loc && abs(piece->distance) > 51)
+			return true;
+	}
+
+	return false;
+}
+
+// checking whether a block can enter the homestaright
+bool checkBlockToHomeStraight(Block_p block, short destination)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		Piece_p piece = block->pieces[i];
+		if (piece)
+			if (!checkPieceToHomeStraight(piece, destination))
+				return false;
+	}
+
+	return true;
 }
 
 // gives stats about the board
 void stats()
 {
-
 	for (short i = 0; i < 4; i++)
 	{
+		short count = 0;
 		NEWLINE;
 		printf("\033[0m============================\nLocation of pieces %s\033[0m\n============================\n", players[i]->name);
 		for (short j = 0; j < 4; j++)
@@ -435,15 +497,34 @@ void stats()
 			short location = players[i]->p[j].location;
 			if (location == BASE)
 				printf("\033[0mPiece %s -> BASE\033[0m.", name);
-			else if ((location == HOME))
-				printf("\033[0mPiece %s -> BASE\033[0m.", name);
+			else if (location == HOME)
+				printf("\033[0mPiece %s -> HOME\033[0m.", name);
+			else if (location > 100)
+				printf("\033[0mPiece %s -> HS%hd\033[0m.", name, location - 100);
 			else
 				printf("\033[0mPiece %s -> %hd\033[0m.", name, location);
+
+			if (location == HOME)
+				count++;
 
 			NEWLINE;
 		}
 	}
 }
+
+
+// check whether a player has won
+bool Won(Player_p player)
+{
+	for (short i = 0; i < 4; i++)
+	{
+		if (player->p[i].location != HOME)
+			return false;
+	}
+	over = true;
+	return true;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,7 +626,7 @@ short cellStatus(Color color, short location)
 }
 
 // checking whether the cell clear for a block and return the status of the cell
-short cellStatusB(c_Block_p checking_block, short location)
+short cellStatusB(Block_p checking_block, short location)
 {
 	// checking for blocks
 	Block_p block = getBlock(location);
@@ -628,7 +709,9 @@ short decidePathB(Block_p block, short roll, short* status)
 short lookUpPath(Piece_p piece, short roll)
 {
 	short status;	// this status is ignored here
-	return decidePath(piece, roll, &status);
+	short loc = decidePath(piece, roll, &status);
+
+	status = cellStatus(piece->color, loc);
 
 	return status;
 }
@@ -637,7 +720,9 @@ short lookUpPath(Piece_p piece, short roll)
 short lookUpPathB(Block_p block, short roll)
 {
 	short status;	// this status is ignored here
-	return decidePath(block, roll, &status);
+	short loc = decidePathB(block, roll, &status);
+
+	status = cellStatusB(block, loc);
 
 	return status;
 }
@@ -686,7 +771,7 @@ Block_p initBlock(Player_p player, Piece_p p1, Piece_p p2)
 	p1->block = true;
 	p2->block = true;
 
-	printf("\tA Block %s has been created for the %s player with %s & %s pieces.\n", getBID(block), player->name, getPID(p1), getPID(p2));
+	printf("\t\033[0;0mA Block %s has been created for the %s player with %s & %s pieces.\n", getBID(block), player->name, getPID(p1), getPID(p2));
 
 	return block;
 }

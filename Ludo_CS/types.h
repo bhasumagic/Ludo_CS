@@ -56,7 +56,6 @@ typedef struct
 } Piece;
 
 typedef Piece* Piece_p;
-typedef const Piece* c_Piece_p;
 
 
 // defining a new type Block
@@ -71,7 +70,6 @@ typedef struct
 } Block;
 
 typedef Block* Block_p;
-typedef const Block* c_Block_p;
 
 
 // defining a new type Player
@@ -87,7 +85,6 @@ typedef struct
 } Player;
 
 typedef Player* Player_p;
-typedef const Player* c_Player_p;
 
 
 
@@ -96,4 +93,6 @@ extern int game_round_count;
 extern Player_p players[4];
 extern char map[52];
 extern short mystery_cell;
-short traffic_count;
+extern short traffic_count;
+extern bool over;
+extern Player_p WPlayer;

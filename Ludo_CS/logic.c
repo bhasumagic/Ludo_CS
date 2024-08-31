@@ -11,8 +11,10 @@
 int game_round_count = 0;
 char map[52] = { 0 };			// map for the board path
 Player_p players[4] = { 0 };	// pointers for players
-short mystery_cell = 2;			// mystery cell (0-52)
+short mystery_cell =  -52;		// mystery cell (0-52)
 short traffic_count = 0;		// count the traffic in order to stop the game in case of an unavoidable path block
+bool over;
+Player_p WPlayer = NULL;
 
 
 
@@ -47,7 +49,7 @@ Player initPlayer(Color color)
 		player.p[i].effect = NONE;
 	}
 
-	printf("The %s\033[0m player has four (04) pieces named %s, %s, %s, and %s.\n", player.name, getPID(&player.p[0]), getPID(&player.p[1]), getPID(&player.p[2]), getPID(&player.p[3]) );
+	printf("\033[0mThe %s\033[0m player has four (04) pieces named %s, %s, %s, and %s.\n", player.name, getPID(&player.p[0]), getPID(&player.p[1]), getPID(&player.p[2]), getPID(&player.p[3]) );
 
 	return player;
 }
@@ -86,8 +88,18 @@ void start(Player_p player1, Player_p player2, Player_p player3, Player_p player
 void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Player_p player4)
 {
 	game_round_count++;
-	printf(">>> Game round - %d\n", game_round_count);
+	static short Mcount;
+	if (game_round_count % 4 == 2)
+	{
+		short temp = abs(RANDELL);
+		if (mystery_cell == temp)
+			temp = (temp / 2) + 5;
+		mystery_cell = temp;
+		Mcount = 4;
+		printf("\nA mystery cell has spawned in location %hd and will be at this location for the next four rounds.\n", mystery_cell);
+	}
 
+	printf(">>> Game round - %d\n", game_round_count);
 	// Calling for the move fucntion for each player.
 	while (move(player1));
 	while (move(player2));
@@ -95,6 +107,36 @@ void game_round_runner(Player_p player1, Player_p player2, Player_p player3, Pla
 	while (move(player4));
 
 	stats();
+	if (mystery_cell != -52)
+	{
+		printf("\n\033[0mThe mystery cell is at %hd and will be at that location for the next %hd values.\n", mystery_cell, --Mcount);
+	}
+
+
+
+	if(traffic_count >= 5)
+	{
+		over = true;
+		Player_p maxPlayer = player1;
+		short max = player1->p[0].location + player1->p[1].location+ player1->p[2].location+ player1->p[3].location;
+
+		if (player2->p[0].location + player2->p[1].location+ player2->p[2].location+ player2->p[3].location > max)
+		{
+			maxPlayer = player2;
+			max = player2->p[0].location + player2->p[1].location+ player2->p[2].location+ player2->p[3].location;
+		}
+		if (player3->p[0].location + player3->p[1].location+ player3->p[2].location+ player3->p[3].location > max)
+		{
+			maxPlayer = player3;
+			max = player3->p[0].location + player3->p[1].location+ player3->p[2].location+ player3->p[3].location;
+		}
+		if (player4->p[0].location + player4->p[1].location+ player4->p[2].location+ player4->p[3].location > max)
+		{
+			maxPlayer = player4;
+		}
+
+		WPlayer = maxPlayer;
+	}
 }
 
 

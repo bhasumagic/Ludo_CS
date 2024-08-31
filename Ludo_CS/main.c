@@ -4,8 +4,6 @@
 #include "logic.h"
 #include "functions.h"
 
-extern char map[52];
-
 
 int main()
 {
@@ -22,21 +20,43 @@ int main()
 
 	// starts the game by passing the player addresses
 	start(&player1, &player2, &player3, &player4);
-
-	LINE;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// for testing purposes
+	//
+	//Player_p mP = NULL;
+	//Player_p cP = NULL;
+	//Block_p mp = NULL;
+	//Block_p cp = NULL;
+	//
+	//for (short i = 0; i < 4; i++)
+	//{
+	//	if (players[i]->color == YELLOW)
+	//	{
+	//
+	//	}
+	//
+	//	if (players[i]->color == RED)
+	//	{
+	//
+	//	}
+	//}
+	//
+	//moveBlock(mP, mp, 6);
+	//
+	//stats();
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	LINE;
 
 	// game loop
-	int c = 0;
-	while (c < 50)
+	while (!over)
 	{
-		c++;
 		game_round_runner(&player1, &player2, &player3, &player4);
 		LINE;
 	}
+
+	NEWLINE; HLINE; NEWLINE;
+	printf("%s Player won the game !!!\n\n", WPlayer->name);
 }
